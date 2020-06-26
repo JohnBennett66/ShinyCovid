@@ -13,30 +13,31 @@ library(usmap)
 ###
 
 
-dataset <- diamonds
 
+
+###  PAGE LAYOUT :: MAIN & SIDEBAR :: SINGLE PLOT  ####
 fluidPage(
   
-  titlePanel("Diamonds Explorer"),
+  # titlePanel("US :: COVID-19 :: BASIC DATA"),
+  
+  sidebarLayout(
   
   sidebarPanel(
     
-    sliderInput('sampleSize', 'Sample Size', min=1, max=nrow(dataset),
-                value=min(1000, nrow(dataset)), step=500, round=0),
+    selectInput('type', "Date to display…", c("Daily Cases", "Daily Deaths"))
     
-    selectInput('x', 'X', names(dataset)),
-    selectInput('y', 'Y', names(dataset), names(dataset)[[2]]),
-    selectInput('color', 'Color', c('None', names(dataset))),
-    
-    checkboxInput('jitter', 'Jitter'),
-    checkboxInput('smooth', 'Smooth'),
-    
-    selectInput('facet_row', 'Facet Row', c(None='.', names(dataset))),
-    selectInput('facet_col', 'Facet Column', c(None='.', names(dataset)))
-  ),
+    ,width = 3),
+  
+  
   
   mainPanel(
-    plotOutput('plot')
-  )
+    
+    plotOutput("plot")
+    
+  , width = 9),
+  
+  position = "right",
+  fluid = TRUE)
+
 )
 
