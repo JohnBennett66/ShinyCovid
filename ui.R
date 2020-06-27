@@ -16,21 +16,27 @@ library(usmap)
 
 
 ###  PAGE LAYOUT :: MAIN & SIDEBAR :: SINGLE PLOT  ####
-fluidPage(
+bootstrapPage(
+
+  titlePanel("COVID-19 DATA TRACKING APPLICATION", windowTitle = "CovidTracker"),
   
-  sidebarPanel(
-     varSelectInput('type', "Select a data type", us.date[,5:6])
-  ),
   
-  mainPanel(
+  sidebarLayout( 
+  
+    sidebarPanel(
+     varSelectInput('type', "Select a data type", us.date[,5:6]),
+     width = 3
+    ), #sidebar
+  
+    mainPanel(
     
     textOutput('text'),
     
     plotOutput('plot')
     
-    
-    
-  )
+    ), #main
+ 
+  position = "right") #sidebarlayout
 
-)
+) #fluidpage
 
