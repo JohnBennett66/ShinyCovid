@@ -18,26 +18,19 @@ library(usmap)
 ###  PAGE LAYOUT :: MAIN & SIDEBAR :: SINGLE PLOT  ####
 fluidPage(
   
-  # titlePanel("US :: COVID-19 :: BASIC DATA"),
-  
-  sidebarLayout(
-  
   sidebarPanel(
-    
-    selectInput('type', "Date to display…", c("Daily Cases", "Daily Deaths"))
-    
-    ,width = 3),
-  
-  
+     varSelectInput('type', "Select a data type", us.date[,5:6])
+  ),
   
   mainPanel(
     
-    plotOutput("plot")
+    textOutput('text'),
     
-  , width = 9),
-  
-  position = "right",
-  fluid = TRUE)
+    plotOutput('plot')
+    
+    
+    
+  )
 
 )
 
