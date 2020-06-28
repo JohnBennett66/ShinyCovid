@@ -4,6 +4,7 @@
 library(rsconnect)
 library(shiny)
 library(ggplot2)
+library(stringr)
 library(wbstats)
 library(dplyr)
 library(data.table)
@@ -82,6 +83,8 @@ function(input, output) {
  #   
  # } )
  
+
+  
 output$plot_dus <- renderPlot( {
   
   if(input$daily == 'cases') ggplot(data = us.date) + 
@@ -111,20 +114,66 @@ output$plot_dus <- renderPlot( {
          y = "Cumulative Deaths",
          x = "2020")}
   
-  
-  
-  
 } )
   
-output$plot_st <- renderPlot( {    ## cumulative and scope
+
+output$plot_st <- renderPlot( {    ## cumulative and scope cases/deaths total/change
   
-  plot_usmap("states", data = us.state[date == max(date)], values = "cum_cases", color = "blue4") + 
-    scale_fill_continuous(low = "lightblue1", high = "blue4", name = "Total Cases", label = scales::comma) + 
-    theme(panel.background = element_rect(colour = "black", fill = "lightyellow")) + 
-    labs(title = "Total Cases by State",
-         subtitle = paste0("For ",us.date[,max(date)])
-    )
+  if(input$cumulative == "cases")  
+    plot_usmap("states", data = us.state[date == max(date)], values = "cum_cases", color = "blue4") +
+      scale_fill_continuous(low = "lightblue1", high = "blue4", name = "Total Cases", label = scales::comma) +
+      theme(panel.background = element_rect(colour = "black", fill = "lightyellow")) +
+      labs(title = "Total Cases by State",
+           subtitle = paste0("For ",us.date[,max(date)]) ) 
+  else 
+    plot_usmap("states", data = us.state[date == max(date)], values = "cum_deaths", color = "orangered") +
+      scale_fill_continuous(low = "lightpink", high = "orangered", name = "Total Deaths", label = scales::comma) +
+      theme(panel.background = element_rect(colour = "black", fill = "lightyellow")) +
+      labs(title = "Total Cases by State",
+           subtitle = paste0("For ",us.date[,max(date)]))
+  
   
   })
 
-}
+
+output$plot_chg <- renderPlot( {    ## cumulative and scope cases/deaths total/change
+  
+  if(input$cumulative == "cases")
+    plot_usmap("states", data = us.state[date == max(date)], values = "pct_chng_lstwk", color = "slateblue4") +
+      scale_fill_continuous(low = "lightblue1", high = "blue4", name = "Percent Change", label = scales::comma) +
+      theme(panel.background = element_rect(colour = "black", fill = "lightyellow")) +
+      labs(title = "Percent Change for each State on Total Cases — Compared to Last Week",
+           subtitle = paste0("For ",us.date[,max(date)]) )
+  else 
+    plot_usmap("states", data = us.state[date == max(date)], values = "cum_deaths", color = "firebrick") +
+      scale_fill_continuous(low = "lightpink", high = "orangered", name = "Percent Change", label = scales::comma) +
+      theme(panel.background = element_rect(colour = "black", fill = "lightyellow")) +
+      labs(title = "Percent Change for each State on Total Cases — Compared to Last Week",
+           subtitle = paste0("For ",us.date[,max(date)]))
+  
+})
+
+} # function
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

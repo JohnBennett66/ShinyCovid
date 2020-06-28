@@ -4,6 +4,7 @@
 ### LOAD PACKAGES
 library(rsconnect)
 library(shiny)
+library(stringr)
 library(ggplot2)
 library(wbstats)
 library(dplyr)
@@ -27,7 +28,7 @@ fluidPage(
                         sidebarPanel(
                           
                           em("Which Data?", style="font-size:15px"),
-                          shinythemes::themeSelector(),
+                          # shinythemes::themeSelector(),
                           selectInput('daily', p("Cases or Deaths?", style="font-size:13px"), 
                                       c("Daily Cases" = "cases", "Daily Deaths" = "deaths"))
                           #    width = 3
@@ -47,14 +48,14 @@ fluidPage(
                         sidebarPanel(
                           
                           selectInput('cumulative', p("Cases or Deaths?", style="font-size:13px"), 
-                                      c("Cumulative Cases" = "cases", "Cumulative Deaths" = "deaths")),
-                          selectInput("scope", p("Total this Week or Percent Change from Last Week"), 
-                                      c("Total" = "total", "Percent Change" = "change"))
+                                      c("Cumulative Cases" = "cases", "Cumulative Deaths" = "deaths"))
+                          
                           
                         ),
                         mainPanel(
                           
-                          plotOutput('plot_st')
+                          plotOutput('plot_st'),
+                          plotOutput('plot_chg')
                           
                         ),
                       ),
