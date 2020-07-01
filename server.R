@@ -20,6 +20,12 @@ us.state <- fread("https://query.data.world/s/cgpumxcw4ajvqt6334dwjhay6uhact",
                  drop = c("cumulative_cases_per_100_000",  "cumulative_deaths_per_100_000",
                           "new_cases_7_day_rolling_avg",  "new_deaths_7_day_rolling_avg",
                           "new_deaths_per_100_000", "new_cases_per_100_000"))
+df.tb <- fread("https://query.data.world/s/33aafdu2yb5fx4arlb66xhdawgkav3", 
+                  check.names=TRUE, stringsAsFactors=FALSE);
+colnames(df.tb) <- c("cum_cases", "county", "date", "state", "continent", "source", 
+                     "new_deaths", "fips", "iso3", "country", "iso2", "new_cases", 
+                     "cum_deaths")
+
 ### DATA TRANSFORMATIONS  ####
 # friendly names
 colnames(us.state) <- c("state", "date", "pop",
@@ -92,7 +98,11 @@ ifelse(cnt.mn <= 15, us.state.rise <- us.state.chng[pct_chng_lstwk >= mn, state]
          us.state.rise <- us.state.chng[pct_chng_lstwk >= sd.2, state]
   )
 )
-
+# counties data
+us.tb <- df.tb[iso2 == "US", .(state, county, fips, date, cum_cases, cum_deaths, new_deaths, new_cases)]
+counties <- us.tb[date == max(date)]
+counties[state == "New York" & county == "New York City", fips := 36061]
+remove(df.tb)
 
 ###  MAIN FUNCTION  ####
 function(input, output) {
@@ -227,6 +237,25 @@ height = 'auto'
 )
 
 
+output$plot_county_cases <- renderPlot( {
+  
+  plot_usmap("counties", data = counties, values = "cum_cases", color = "slateblue4") +
+    scale_fill_continuous(low = "deepskyblue2", high = "red2", name = "Cumulative Cases", label = scales::comma) +
+    theme(panel.background = element_rect(colour = "black", fill = "lightyellow")) +
+    labs(title = "Percent Change for each State on Total Cases — Compared to Last Week",
+         subtitle = paste0("For ",us.date[,max(date)]) )  
+  
+} )
+
+output$plot_county_deaths <- renderPlot( {
+  
+  plot_usmap("counties", include = .northeast_region, data = counties, values = "cum_deaths", color = "slateblue4") +
+    scale_fill_continuous(low = "pink", high = "red", name = "Cumulative Deaths", label = scales::comma) +
+    theme(panel.background = element_rect(colour = "black", fill = "lightyellow")) +
+    labs(title = "Percent Change for each State on Total Cases — Compared to Last Week",
+         subtitle = paste0("For ",us.date[,max(date)]) )  
+  
+} )
 
 
 
