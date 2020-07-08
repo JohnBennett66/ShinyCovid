@@ -249,8 +249,8 @@ output$plot_county_cases <- renderPlot( {
 
 output$plot_county_deaths <- renderPlot( {
   
-  plot_usmap("counties", include = .northeast_region, data = counties, values = "cum_deaths", color = "slateblue4") +
-    scale_fill_continuous(low = "pink", high = "red", name = "Cumulative Deaths", label = scales::comma) +
+  plot_usmap("counties", include = "Utah", data = counties, values = "cum_deaths", color = "slateblue4") +
+    scale_fill_continuous(low = "#DDAAAA", high = "firebrick3", name = "Cumulative Deaths", label = scales::comma) +
     theme(panel.background = element_rect(colour = "black", fill = "lightyellow")) +
     labs(title = "Percent Change for each State on Total Cases — Compared to Last Week",
          subtitle = paste0("For ",us.date[,max(date)]) )  
