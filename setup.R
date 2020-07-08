@@ -4,6 +4,7 @@
 
 ### LOAD PACKAGES
 library(rsconnect)
+library(forecast)
 library(shiny)
 library(ggplot2)
 library(stringr)
