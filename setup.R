@@ -5,6 +5,7 @@
 ### LOAD PACKAGES
 library(rsconnect)
 library(forecast)
+library(scales)
 library(shiny)
 library(ggplot2)
 library(stringr)
@@ -60,7 +61,6 @@ us.date[,cases_per_mill := (cum_cases/(pop/1000000))]
 us.date[,deaths_per_mill := (cum_deaths/(pop/1000000))]
 us.date[,cases_per_10mill := (cum_cases/(pop/10000000))]
 us.date[,deaths_per_10mill := (cum_deaths/(pop/10000000))]
-# moving averages
 # basic :: 5 day
 us.date[ , five_day_cases := frollmean(us.date[,daily_cases], 5) ]
 us.date[ , five_day_deaths := frollmean(us.date[,daily_deaths], 5) ]
@@ -72,6 +72,9 @@ us.state[,cum_cases_lstwk := shift(cum_cases,7), by = state]
 us.state[,pct_chng_lstwk := ((cum_cases - cum_cases_lstwk)/cum_cases_lstwk)*100]
 us.state[,cum_deaths_lstwk := shift(cum_deaths,7), by = state]
 us.state[,pct_deaths_lstwk := ((cum_deaths - cum_deaths_lstwk)/cum_deaths_lstwk)*100]
+# transformations - state
+us.state[,cases_per_mill := (cum_cases/(pop/1000000))]
+us.state[,deaths_per_mill := (cum_deaths/(pop/1000000))]
 # moving averages - states
 # basic :: 5 day
 us.state[ , five_day_cases := frollmean(us.state[,daily_cases], 5) ]

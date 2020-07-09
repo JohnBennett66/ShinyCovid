@@ -172,7 +172,18 @@ output$plot_county_deaths <- renderPlot( {
   
 } )
 
-
+state.table <- us.state[date == max(date), .(state, 
+                                             comma(cum_cases), comma(as.integer(cases_per_mill)), 
+                                             unit_format(sep = "", unit = "%", accuracy = .1)(pct_chng_lstwk), 
+                                             comma(cum_deaths), comma(as.integer(deaths_per_mill)), 
+                                             unit_format(sep = "", unit = "%", accuracy = .1)(pct_deaths_lstwk))]
+setnames(state.table, 1:7,
+         c("State", "Total Cases", "Cases/1M", "Percent Change", "Total Deaths", "Deaths/1M", "Percent Change"),
+         skip_absent = FALSE
+)
+output$table_states <- renderTable(
+  state.table
+)
 
 
 } # function

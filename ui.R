@@ -35,7 +35,9 @@ fluidPage(
                         ),
                         mainPanel(
                           
-                          plotOutput('plot_dus')
+                          plotOutput('plot_dus'),
+                          tableOutput('table_states'),
+                          HTML("<strong>NOTE:</strong> The Percent Change columns are this week compared to last week.")
                           
                         ),
                       ),
