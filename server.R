@@ -1,20 +1,9 @@
 ### SERVER SCRIPT
 
-### LOAD PACKAGES
-library(rsconnect)
-library(shiny)
-library(ggplot2)
-library(stringr)
-library(wbstats)
-library(dplyr)
-library(data.table)
-library(lubridate)
-library(usmap)
-library(shinythemes)
-###
+
 
 ###  SETUP :: IMPORT :: TRANSFORM  ####
-source('~/R4FUN/ShinyCovid/setup.R')
+source('setup.R')
 
 
 
@@ -26,15 +15,22 @@ output$st.lst <- renderText({
   paste(toString(us.state.rise),"\n")
 })
  
-output$test <- renderText( { 
-  paste(toString(us.state[state == "Washington", input$daily]))
+output$daily <- renderPrint({
+  input$daily
+})
+output$forecast <- renderPrint( { 
+  input$forecast
   })
 
 ##  US OVERALL DAILY LINE CHART :: CASES OR DEATHS 
+md <- as_date(pred.dt[,max(date)])
+mid <- as_date(us.date[,min(date)])
+
 output$plot_dus <- renderPlot( {
   
-  if(input$daily == 'cases') ggplot(data = us.date) + 
-      geom_col(aes(x = date, y = daily_cases), fill = "darkorange3") +
+  
+  if(input$daily == 'cases' & input$forecast == "yes") ggplot(data = us.date) + 
+    geom_col(aes(x = date, y = daily_cases), fill = "darkorange3") +
     geom_line(aes(x = date, y = five_day_cases), colour = 'blue', size = 1) +
     geom_line(aes(x = date, y = twowk_day_cases), colour = 'dodgerblue', size = 1) +
     geom_hline(aes(yintercept = avg.c), colour = 'grey1', size = 1) +
@@ -46,9 +42,55 @@ output$plot_dus <- renderPlot( {
                           "Five Day Moving Average :: Blue Line",
                           "14 Day Moving Average :: Light Blue Line",
                           sep = "\n"),
-         y = "Cumulative Deaths",
-         x = "2020") 
-  else {ggplot(data = us.date) +
+         y = "Cumulative Cases",
+         x = "2020") + 
+    scale_x_date(limits = c(mid,md)) + 
+    geom_col(data = pred.dt, aes(x = date, y = pred), fill = "tan") + 
+    geom_line(data = pred.dt, aes(x = date, y = u95), colour = "grey80") + 
+    geom_line(data = pred.dt, aes(x = date, y = u80), colour = "grey40") + 
+    geom_line(data = pred.dt, aes(x = date, y = l95), colour = "grey90") + 
+    geom_line(data = pred.dt, aes(x = date, y = l80), colour = "grey40") else
+  
+  if(input$daily == 'cases' & input$forecast == "no") ggplot(data = us.date) + 
+      geom_col(aes(x = date, y = daily_cases), fill = "darkorange3") +
+      geom_line(aes(x = date, y = five_day_cases), colour = 'blue', size = 1) +
+      geom_line(aes(x = date, y = twowk_day_cases), colour = 'dodgerblue', size = 1) +
+      geom_hline(aes(yintercept = avg.c), colour = 'grey1', size = 1) +
+      scale_x_date(limits = c(start.date, end.date + 1)) +
+      labs(title = paste0("Daily Cases Covid-19 in US by Date — 29 February to current (",end.date,")"),
+           subtitle = paste(paste0("Total US Cases :: ", format(tot.c, big.mark = ",") ),
+                            paste0("Cases per million Americans :: ", format(as.integer(tot.c / 327), big.mark = ",") ),
+                            paste0("Days since 29 February 2020 :: ", d[[1]]),
+                            "Five Day Moving Average :: Blue Line",
+                            "14 Day Moving Average :: Light Blue Line",
+                            sep = "\n"),
+           y = "Cumulative Cases",
+           x = "2020") else
+   
+  
+      if(input$daily == 'deaths' & input$forecast == 'yes') ggplot(data = us.date) + 
+        geom_col(aes(x = date, y = daily_deaths), fill = "darkorange3") +
+        geom_line(aes(x = date, y = five_day_deaths), colour = 'blue', size = 1) +
+        geom_line(aes(x = date, y = twowk_day_deaths), colour = 'dodgerblue', size = 1) +
+        geom_hline(aes(yintercept = avg.d), colour = 'grey1', size = 1) +
+        scale_x_date(limits = c(start.date, end.date + 1)) +
+        labs(title = paste0("Daily Deaths Covid-19 in US by Date — 29 February to current (",end.date,")"),
+             subtitle = paste(paste0("Total US Deaths :: ", format(tot.c, big.mark = ",") ),
+                              paste0("Deaths per million Americans :: ", format(as.integer(tot.c / 327), big.mark = ",") ),
+                              paste0("Days since 29 February 2020 :: ", d[[1]]),
+                              "Five Day Moving Average :: Blue Line",
+                              "14 Day Moving Average :: Light Blue Line",
+                              sep = "\n"),
+             y = "Cumulative Deaths",
+             x = "2020") + 
+        scale_x_date(limits = c(mid,md)) + 
+        geom_col(data = pred.dt.d, aes(x = date, y = pred), fill = "tan") + 
+        geom_line(data = pred.dt.d, aes(x = date, y = u95), colour = "grey80") + 
+        geom_line(data = pred.dt.d, aes(x = date, y = u80), colour = "grey40") + 
+        geom_line(data = pred.dt.d, aes(x = date, y = l95), colour = "grey90") + 
+        geom_line(data = pred.dt.d, aes(x = date, y = l80), colour = "grey40") else
+      
+  if(input$daily == 'deaths' & input$forecast == 'no') ggplot(data = us.date) +
     geom_col(aes(x = date, y = daily_deaths), fill = "darkorange3") +
     geom_line(aes(x = date, y = five_day_deaths), colour = 'blue', size = 1) +
     geom_line(aes(x = date, y = twowk_day_deaths), colour = 'dodgerblue', size = 1) +
@@ -62,12 +104,16 @@ output$plot_dus <- renderPlot( {
                           "14 Day Moving Average :: Light Blue Line",
                           sep = "\n"),
          y = "Cumulative Deaths",
-         x = "2020")}
+         x = "2020") else {
+           
+           ggplot(data = us.date[date > "2020-04-15"]) + 
+             geom_col(aes(date, daily_cases))
+         }
   
 } )
   
 
-##  US MAP CHART :: CUMULATIVE RANKING :: CASESE OR DEATHS :: DISPLAYED WITH BELOW
+##  US MAP CHART :: CUMULATIVE RANKING :: CASES OR DEATHS :: DISPLAYED WITH BELOW
 output$plot_st <- renderPlot( {    ## cumulative and scope cases/deaths total/change
   
   if(input$cumulative == "cases")  
@@ -184,6 +230,32 @@ setnames(state.table, 1:7,
 output$table_states <- renderTable(
   state.table
 )
+
+
+forecast.c <- renderPlot({ print(p)
+  # autoplot(stf.c) + 
+  # geom_forecast(showgap = FALSE, PI = TRUE) + 
+  # labs(title = "14 Day Forecast for Daily Cases in the US", 
+  #      x = "Days Since First US Case (22 Jan 2020)",
+  #      y = "Number of Cases each Day",
+  #      caption = paste("These charts start with the first US case :: 22 Jan 2020",
+  #                      "Most charts start with 29 Feb 2020 when cases began advancing more rapidly",
+  #                      sep = "\n"))
+},
+height = "auto",
+width = "auto"
+)
+
+forecast.d <- renderPlot({
+  autoplot(stf.d) + 
+    geom_forecast(showgap = FALSE, PI = TRUE) + 
+    labs(title = "14 Day Forecast for Daily Death in the US", 
+         x = "Days Since First US Case (22 Jan 2020)",
+         y = "Number of Deaths each Day",
+         caption = paste("These charts start with the first US case :: 22 Jan 2020",
+                         "Most charts start with 29 Feb 2020 when cases began advancing more rapidly",
+                         sep = "\n"))
+})
 
 
 } # function

@@ -31,6 +31,11 @@ colnames(df.tb) <- c("cum_cases", "county", "date", "state", "continent", "sourc
                      "new_deaths", "fips", "iso3", "country", "iso2", "new_cases", 
                      "cum_deaths")
 
+### READ OTHER DATASETS  ####
+pred.stl <- fread(file = "data\\predstl.csv")
+pred.stl.d <- fread(file = "data\\predstld.csv")
+
+
 ### DATA TRANSFORMATIONS  ####
 # friendly names
 colnames(us.state) <- c("state", "date", "pop",
@@ -112,10 +117,63 @@ counties[state == "New York" & county == "New York City", fips := 36061]
 remove(df.tb)
 
 
+# CREATE FORECASTS :: MULTIPLE MODELS
+# daily cases data.table :: US
+dc.dt <- us.date[,.(date, daily_cases)]
+dd.dt <- us.date[,.(date, daily_deaths)]
+# start and end dates and count of days
+start.dt <- dc.dt[date == min(date), date]
+end.dt <- dc.dt[date == max(date), date]
+day.cnt <- end.dt - start.dt
+# create time series objects :: Cases and Deaths
+us.d.ts.c <- ts(us.d.fore[,daily_cases], start = 1, frequency = 7)
+us.d.ts.d <- ts(us.d.fore[,daily_deaths], start = 1, frequency = 7)
+# model/forecast the data :: STL method
+stf.c <- stlf(us.d.ts.c)
+stf.d <- stlf(us.d.ts.d)
+# variables needed
+pred.dt.cnt <- abs((pred.stl[,max(date)] %--% pred.stl[,min(date)]) / ddays(x=1)) + 1
+# add new predictions to table
+if(pred.stl[,max(date)] < (Sys.Date() + 13)) {
+  add.one <- data.table((Sys.Date()+13), as.integer(stf.c$mean[14]), 
+                        as.integer(stf.c$upper[14]), as.integer(stf.c$upper[28]), 
+                        as.integer(stf.c$lower[14]), as.integer(stf.c$lower[28]))
+  pred.stl <- rbind(pred.stl,add.one)
+  fwrite(pred.stl, file = "data\\predstl.csv")
+}
+if(pred.stl.d[,max(date)] < (Sys.Date() + 13)) {
+  add.one.d <- data.table((Sys.Date()+13), as.integer(stf.d$mean[14]), 
+                          as.integer(stf.d$upper[14]), as.integer(stf.d$upper[28]), 
+                          as.integer(stf.d$lower[14]), as.integer(stf.d$lower[28]))
+  pred.stl.d <- rbind(pred.stl.d,add.one)
+  fwrite(pred.stl.d, file = "data\\predstld.csv")
+} 
 
-
-
-
-
-
+# a prediction table for today
+# cases
+pred.dt <- data.table(as_date(Sys.Date()):as_date(Sys.Date()+13), 
+                      as.integer(stf.c$mean), 
+                      as.integer(stf.c$upper[1:14]), 
+                      as.integer(stf.c$upper[15:28]), 
+                      as.integer(stf.c$lower[1:14]), 
+                      as.integer(stf.c$lower[15:28]) )
+setnames(pred.dt, 
+         c('V1','V2','V3','V4','V5','V6'), 
+         c("date", "pred", "u80", "u95", "l80", "l95"))
+pred.dt[,date := as_date(date)]
+setkey(pred.dt,date)
+# deaths
+pred.dt.d <- data.table(as_date(Sys.Date()):as_date(Sys.Date()+13), 
+                      as.integer(stf.d$mean), 
+                      as.integer(stf.d$upper[1:14]), 
+                      as.integer(stf.d$upper[15:28]), 
+                      as.integer(stf.d$lower[1:14]), 
+                      as.integer(stf.d$lower[15:28]) )
+setnames(pred.dt.d, 
+         c('V1','V2','V3','V4','V5','V6'), 
+         c("date", "pred", "u80", "u95", "l80", "l95"))
+pred.dt.d[,date := as_date(date)]
+setkey(pred.dt.d,date)
+pred.dt.d[l80 < 0, l80 := 0]
+pred.dt.d[l95 < 0, l95 := 0]
 

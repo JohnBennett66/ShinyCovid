@@ -1,18 +1,7 @@
 ### UI SCRIPT
 ### 
 
-### LOAD PACKAGES
-library(rsconnect)
-library(shiny)
-library(stringr)
-library(ggplot2)
-library(wbstats)
-library(dplyr)
-library(data.table)
-library(lubridate)
-library(usmap)
-library(shinythemes)
-###
+
 
 
 
@@ -22,7 +11,7 @@ fluidPage(
 
   navbarPage("COVID-19 DATA TRACKING", theme = shinytheme("spacelab"), 
              
-             tabPanel("Daily US", fluid = TRUE, icon =icon("flag-usa"), 
+             tabPanel("Daily US", fluid = TRUE, 
                       
                       sidebarLayout(
                         sidebarPanel(
@@ -30,11 +19,17 @@ fluidPage(
                           # shinythemes::themeSelector(),
                           selectInput('daily', p("Which Data? Cases or Deaths", style="font-size:13px"), 
                                       c("Daily Cases" = "cases", "Daily Deaths" = "deaths")),
+                          
+                          selectInput('forecast', p("Include Forcast? Yes/No", style="font-size:13px"), 
+                                      c("No" = "no", "Yes" = "yes")),
+                          
                           width = 2
                           
                         ),
                         mainPanel(
                           
+                          textOutput('daily'),
+                          textOutput('forecast'),
                           plotOutput('plot_dus'),
                           tableOutput('table_states'),
                           HTML("<strong>NOTE:</strong> The Percent Change columns are this week compared to last week.")
@@ -43,6 +38,27 @@ fluidPage(
                       ),
                      ), #tab-daily-us
     
+             # tabPanel("Forecast", fluid = TRUE, 
+             #          
+             #          # sidebarLayout(
+             #          #   sidebarPanel(
+             #          #     
+             #          #     # selectInput('daily', p("Which Data? Cases or Deaths", style="font-size:13px"), 
+             #          #     #             c("Daily Cases" = "cases", "Daily Deaths" = "deaths")),
+             #          #     width = 2
+             #          #     
+             #          #   ),
+             #            mainPanel(
+             #              
+             # 
+             #              # plotOutput('forecast.c'),
+             #              # plotOutput('forecast.d')
+             #              HTML("<h3>Coming Soon, Analysis of Predicted Values vs Actual</h3>")
+             #              
+             #            ),
+             #          # ),
+             # ), #tab-forecast
+             
              tabPanel("State Comparisons", fluid = TRUE, 
                       
                       sidebarLayout(
