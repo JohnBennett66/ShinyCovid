@@ -33,7 +33,9 @@ colnames(df.tb) <- c("cum_cases", "county", "date", "state", "continent", "sourc
 
 ### READ OTHER DATASETS  ####
 pred.stl <- fread(file = "predstl.csv")
+pred.stl[,date := as_date(date)]
 pred.stl.d <- fread(file = "predstld.csv")
+pred.stl.d[,date := as_date(date)]
 
 
 ### DATA TRANSFORMATIONS  ####
@@ -126,28 +128,38 @@ start.dt <- dc.dt[date == min(date), date]
 end.dt <- dc.dt[date == max(date), date]
 day.cnt <- end.dt - start.dt
 # create time series objects :: Cases and Deaths
-us.d.ts.c <- ts(us.d.fore[,daily_cases], start = 1, frequency = 7)
-us.d.ts.d <- ts(us.d.fore[,daily_deaths], start = 1, frequency = 7)
+us.d.ts.c <- ts(dc.dt[,daily_cases], start = 1, frequency = 7)
+us.d.ts.d <- ts(dd.dt[,daily_deaths], start = 1, frequency = 7)
 # model/forecast the data :: STL method
 stf.c <- stlf(us.d.ts.c)
 stf.d <- stlf(us.d.ts.d)
 # variables needed
 pred.dt.cnt <- abs((pred.stl[,max(date)] %--% pred.stl[,min(date)]) / ddays(x=1)) + 1
 # add new predictions to table
-if(pred.stl[,max(date)] < (Sys.Date() + 13)) {
-  add.one <- data.table((Sys.Date()+13), as.integer(stf.c$mean[14]), 
-                        as.integer(stf.c$upper[14]), as.integer(stf.c$upper[28]), 
-                        as.integer(stf.c$lower[14]), as.integer(stf.c$lower[28]))
-  pred.stl <- rbind(pred.stl,add.one)
-  fwrite(pred.stl, file = "predstl.csv")
-}
-if(pred.stl.d[,max(date)] < (Sys.Date() + 13)) {
-  add.one.d <- data.table((Sys.Date()+13), as.integer(stf.d$mean[14]), 
-                          as.integer(stf.d$upper[14]), as.integer(stf.d$upper[28]), 
-                          as.integer(stf.d$lower[14]), as.integer(stf.d$lower[28]))
-  pred.stl.d <- rbind(pred.stl.d,add.one)
-  fwrite(pred.stl.d, file = "predstld.csv")
-} 
+# if(pred.stl[,max(date)] < (Sys.Date() + 13)) {
+#   add.one <- data.table((Sys.Date()+13), as.integer(stf.c$mean[14]), 
+#                         as.integer(stf.c$upper[14]), as.integer(stf.c$upper[28]), 
+#                         as.integer(stf.c$lower[14]), as.integer(stf.c$lower[28]))
+#   setnames(add.one,c("V1", "V2", "V3", "V4", "V5", "V6"), 
+#            c("date", "pred_stl", "stl_u80", "stl_u95", "stl_l80", "stl_l95"))
+# } else {
+#   add.one <- data.table(NULL,NULL,NULL,NULL,NULL,NULL)
+# }
+# pred.stl <- rbind(pred.stl,add.one)
+# fwrite(pred.stl, file = "predstl.csv")
+# 
+# if(pred.stl.d[,max(date)] < (Sys.Date() + 13)) {
+#   add.one.d <- data.table((Sys.Date()+13), as.integer(stf.d$mean[14]), 
+#                           as.integer(stf.d$upper[14]), as.integer(stf.d$upper[28]), 
+#                           as.integer(stf.d$lower[14]), as.integer(stf.d$lower[28]))
+#   setnames(add.one.d,c("V1", "V2", "V3", "V4", "V5", "V6"), 
+#            c("date", "pred", "u80", "u95", "l80", "l95"))
+# } else {
+#   add.one <- data.table(NULL,NULL,NULL,NULL,NULL,NULL)
+# }
+# pred.stl.d <- rbind(pred.stl.d,add.one)
+# fwrite(pred.stl.d, file = "predstld.csv")
+
 
 # a prediction table for today
 # cases
