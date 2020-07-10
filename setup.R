@@ -32,8 +32,8 @@ colnames(df.tb) <- c("cum_cases", "county", "date", "state", "continent", "sourc
                      "cum_deaths")
 
 ### READ OTHER DATASETS  ####
-pred.stl <- fread(file = "data\\predstl.csv")
-pred.stl.d <- fread(file = "data\\predstld.csv")
+pred.stl <- fread(file = "predstl.csv")
+pred.stl.d <- fread(file = "predstld.csv")
 
 
 ### DATA TRANSFORMATIONS  ####
@@ -139,14 +139,14 @@ if(pred.stl[,max(date)] < (Sys.Date() + 13)) {
                         as.integer(stf.c$upper[14]), as.integer(stf.c$upper[28]), 
                         as.integer(stf.c$lower[14]), as.integer(stf.c$lower[28]))
   pred.stl <- rbind(pred.stl,add.one)
-  fwrite(pred.stl, file = "data\\predstl.csv")
+  fwrite(pred.stl, file = "predstl.csv")
 }
 if(pred.stl.d[,max(date)] < (Sys.Date() + 13)) {
   add.one.d <- data.table((Sys.Date()+13), as.integer(stf.d$mean[14]), 
                           as.integer(stf.d$upper[14]), as.integer(stf.d$upper[28]), 
                           as.integer(stf.d$lower[14]), as.integer(stf.d$lower[28]))
   pred.stl.d <- rbind(pred.stl.d,add.one)
-  fwrite(pred.stl.d, file = "data\\predstld.csv")
+  fwrite(pred.stl.d, file = "predstld.csv")
 } 
 
 # a prediction table for today

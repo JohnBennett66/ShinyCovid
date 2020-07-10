@@ -1,6 +1,19 @@
 ### SERVER SCRIPT
 
-
+### LOAD PACKAGES
+library(rsconnect)
+library(forecast)
+library(scales)
+library(shiny)
+library(ggplot2)
+library(stringr)
+library(wbstats)
+library(dplyr)
+library(data.table)
+library(lubridate)
+library(usmap)
+library(shinythemes)
+###
 
 ###  SETUP :: IMPORT :: TRANSFORM  ####
 source('setup.R')

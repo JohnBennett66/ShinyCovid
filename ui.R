@@ -1,7 +1,20 @@
 ### UI SCRIPT
 ### 
 
-
+### LOAD PACKAGES
+library(rsconnect)
+library(forecast)
+library(scales)
+library(shiny)
+library(ggplot2)
+library(stringr)
+library(wbstats)
+library(dplyr)
+library(data.table)
+library(lubridate)
+library(usmap)
+library(shinythemes)
+###
 
 
 
@@ -28,8 +41,8 @@ fluidPage(
                         ),
                         mainPanel(
                           
-                          textOutput('daily'),
-                          textOutput('forecast'),
+                          # textOutput('daily'),
+                          # textOutput('forecast'),
                           plotOutput('plot_dus'),
                           tableOutput('table_states'),
                           HTML("<strong>NOTE:</strong> The Percent Change columns are this week compared to last week.")
