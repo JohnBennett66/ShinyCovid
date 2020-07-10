@@ -217,7 +217,9 @@ output$plot_county_cases <- renderPlot( {
              values = "cum_cases", color = "slateblue4") +
     scale_fill_continuous(low = "lightblue", high = "blue4", 
                           name = "Cumulative Cases", label = scales::comma) +
-    theme(panel.background = element_rect(colour = "black", fill = "lightyellow")) +
+    theme(panel.background = element_rect(colour = "black", fill = "lightyellow"),
+          legend.position = 'right', 
+          legend.background = element_rect(colour = "black", fill = "lightyellow")) +
     labs(title = "Cumulative Cases by County",
          subtitle = paste0("For ",us.date[,max(date)]) )  
   
@@ -227,8 +229,10 @@ output$plot_county_deaths <- renderPlot( {
   
   plot_usmap("counties", include = input$counties, data = counties, 
              values = "cum_deaths", color = "darkorange3") +
-    scale_fill_continuous(low = "pink", high = "firebrick3", name = "Cumulative Deaths", label = scales::comma) +
-    theme(panel.background = element_rect(colour = "black", fill = "lightyellow")) +
+    scale_fill_continuous(low = "white", high = "firebrick3", name = "Cumulative Deaths", label = scales::comma) +
+    theme(panel.background = element_rect(colour = "black", fill = "lightyellow"),
+          legend.background = element_rect(colour = "black", fill = "lightyellow"),
+          legend.position = 'right') +
     labs(title = "Cumulative Deaths by County",
          subtitle = paste0("For ",us.date[,max(date)]) )  
   

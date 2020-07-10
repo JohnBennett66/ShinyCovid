@@ -117,6 +117,7 @@ ifelse(cnt.mn <= 15, us.state.rise <- us.state.chng[pct_chng_lstwk >= mn, state]
 us.tb <- df.tb[iso2 == "US", .(state, county, fips, date, cum_cases, cum_deaths, new_deaths, new_cases)]
 counties <- us.tb[date == max(date)]
 counties[state == "New York" & county == "New York City", fips := 36061]
+setkey(counties, state)
 
 ### WORLDS DATA  ####
 world.tb <- df.tb[,.(date,continent,country,new_cases,new_deaths,cum_cases,cum_deaths)]
