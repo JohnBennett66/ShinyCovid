@@ -112,11 +112,17 @@ ifelse(cnt.mn <= 15, us.state.rise <- us.state.chng[pct_chng_lstwk >= mn, state]
               us.state.rise <- us.state.chng[pct_chng_lstwk >= sd.2, state]
        )
 )
-# counties data
+
+### COUNTY DATA  ####
 us.tb <- df.tb[iso2 == "US", .(state, county, fips, date, cum_cases, cum_deaths, new_deaths, new_cases)]
 counties <- us.tb[date == max(date)]
 counties[state == "New York" & county == "New York City", fips := 36061]
-remove(df.tb)
+
+### WORLDS DATA  ####
+world.tb <- df.tb[,.(date,continent,country,new_cases,new_deaths,cum_cases,cum_deaths)]
+world.tb[,lapply(.SD,sum),.SDcols=c("new_cases","new_deaths","cum_cases","cum_deaths"), by = .(country,continent,date)]
+setkey(world.tb,date)
+ 
 
 
 # CREATE FORECASTS :: MULTIPLE MODELS
@@ -136,6 +142,12 @@ stf.d <- stlf(us.d.ts.d)
 # variables needed
 pred.dt.cnt <- abs((pred.stl[,max(date)] %--% pred.stl[,min(date)]) / ddays(x=1)) + 1
 # add new predictions to table
+# 
+# FIX WITH THIS ?? ####
+# Instead of IF statement, just build the new table 
+# then select dates newer than what exists in the .csv file
+# now rbind those new dates to the original and then write the file
+# 
 # if(pred.stl[,max(date)] < (Sys.Date() + 13)) {
 #   add.one <- data.table((Sys.Date()+13), as.integer(stf.c$mean[14]), 
 #                         as.integer(stf.c$upper[14]), as.integer(stf.c$upper[28]), 
@@ -189,3 +201,7 @@ setkey(pred.dt.d,date)
 pred.dt.d[l80 < 0, l80 := 0]
 pred.dt.d[l95 < 0, l95 := 0]
 
+
+
+### REMOVE  ####
+remove(df.tb)

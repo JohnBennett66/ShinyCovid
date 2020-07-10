@@ -119,6 +119,24 @@ fluidPage(
              ), #tab-single-state
              
              
+             tabPanel("Counties — US", fluid = TRUE,
+                      
+                      sidebarLayout(
+                        sidebarPanel(
+                          
+                          selectInput('counties', p("Which State", style="font-size:13px"), 
+                                      counties[,unique(state)], selected = "Alabama"),
+                          width = 2
+                        ),
+                        
+                        mainPanel(
+                          plotOutput('plot_county_cases'),
+                          plotOutput('plot_county_deaths')
+                        ),
+                      ),
+                      
+                      
+                      ), #tab-counties-us
              
              
              tabPanel("About", fluid = TRUE,
