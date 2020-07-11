@@ -14,6 +14,7 @@ library(dplyr)
 library(data.table)
 library(lubridate)
 library(usmap)
+library(maps)
 library(shinythemes)
 ###
 
@@ -36,7 +37,7 @@ pred.stl <- fread(file = "predstl.csv")
 pred.stl[,date := as_date(date)]
 pred.stl.d <- fread(file = "predstld.csv")
 pred.stl.d[,date := as_date(date)]
-
+p2020 <- fread(file = "p2020.csv")
 
 ### DATA TRANSFORMATIONS  ####
 # friendly names
@@ -127,6 +128,11 @@ world.tb[ , five_day_deaths := frollmean(world.tb[,new_deaths], 5) ]
 # extended :: 14 day
 world.tb[ , twowk_day_cases := frollmean(world.tb[,new_cases], 14) ]
 world.tb[ , twowk_day_deaths := frollmean(world.tb[,new_deaths], 14) ]
+# population numbers
+world.tb <- world.tb[p2020,on = .(country = country)]
+# pop transforms :: world data
+world.tb[,(cases_per_mil := cum_cases/(pop/1000000)]
+world.tb[,deaths_per_mil := cum_deaths/(pop/1000000)]
 # NA = 0
 setnafill(world.tb, fill = 0, cols = 7:14)
 # variables

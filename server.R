@@ -12,6 +12,7 @@ library(dplyr)
 library(data.table)
 library(lubridate)
 library(usmap)
+library(maps)
 library(shinythemes)
 ###
 
@@ -298,7 +299,7 @@ output$world.c <- renderPlot({
           axis.ticks = element_blank(),
           legend.position = "bottom") + 
     labs(x="",y="")
-})
+}, width = 400, height = 325)
 
 output$world.d <- renderPlot({
   ggplot(world.tb[date == max(date)], aes(fill = cum_deaths/1000)) + 
@@ -313,7 +314,7 @@ output$world.d <- renderPlot({
           axis.title = element_blank(),
           axis.ticks = element_blank(),
           legend.position = "bottom") 
-})
+}, width = 400, height = 325)
 
 
 
