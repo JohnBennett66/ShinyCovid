@@ -3,7 +3,7 @@
 
 ### LOAD PACKAGES
 library(rsconnect)
-library(forecast)
+library(fpp2)
 library(scales)
 library(shiny)
 library(ggplot2)
@@ -138,6 +138,14 @@ fluidPage(
                       
                       ), #tab-counties-us
              
+             tabPanel("World", fluid = TRUE,
+                      
+                      mainPanel(
+                        plotOutput('world.c'),
+                        plotOutput('world.d')
+                      ),
+               
+             ), #tab-world
              
              tabPanel("About", fluid = TRUE,
                       mainPanel(

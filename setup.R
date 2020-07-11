@@ -4,7 +4,7 @@
 
 ### LOAD PACKAGES
 library(rsconnect)
-library(forecast)
+library(fpp2)
 library(scales)
 library(shiny)
 library(ggplot2)
@@ -92,11 +92,49 @@ us.state[ , twowk_day_deaths := frollmean(us.state[,daily_deaths], 14) ]
 # NA = 0
 setnafill(us.state, fill = 0, cols = 8:15)
 setnafill(us.date, fill = 0, cols = 13:16)
+## WORLD
+world.tb <- df.tb[,.(date,continent,country,new_cases,new_deaths,cum_cases,cum_deaths)]
+world.tb <- world.tb[date == max(date)]
+world.tb <- world.tb[,.(new_cases = max(new_cases), new_deaths = max(new_deaths), 
+                        cum_cases = sum(cum_cases), cum_deaths = sum(cum_deaths)),
+                     by = .(date, country)]
+setkey(world.tb,date,country)
+world.tb[country == "United States", country := "USA"]
+world.tb[country == "Antigua and Barbuda", country := "Antigua"]
+world.tb[country == "Bonaire, Saint Eustatius and Saba", country := "Bonaire"]
+world.tb[country == "Brunei and Darussalam", country := "Brunei"]
+world.tb[country == "CuraÃ§ao", country := "Curacao"]
+world.tb[country == "Chechia", country := "Czech Republic"]
+world.tb[country == "Falkland Islands (Malvinas)", country := "Falkland Islands"]
+world.tb[country == "Guinea Bissau", country := "Guinea-Bissau"]
+world.tb[country == "Cote dIvoire", country := "Ivory Coast"]
+world.tb[country == "Congo", country := "Republic of Congo"]
+world.tb[country == "Saint Kitts and Nevis", country := "Saint Kitts"]
+world.tb[country == "Saint Vincent and the Grenadines", country := "Saint Vincent"]
+world.tb[country == "Timor Leste", country := "Timor-Leste"]
+world.tb[country == "Trinidad and Tobago", country := "Trinidad"]
+world.tb[country == "United Republic of Tanzania", country := "Tanzania"]
+world.tb[country == "United Kingdom", country := "UK"]
+# week over week change
+world.tb[,cum_cases_lstwk := shift(cum_cases,7), by = country]
+world.tb[,pct_chng_lstwk := ((cum_cases - cum_cases_lstwk)/cum_cases_lstwk)*100]
+world.tb[,cum_deaths_lstwk := shift(cum_deaths,7), by = country]
+world.tb[,pct_deaths_lstwk := ((cum_deaths - cum_deaths_lstwk)/cum_deaths_lstwk)*100]
+# moving averages - states
+# basic :: 5 day
+world.tb[ , five_day_cases := frollmean(world.tb[,new_cases], 5) ]
+world.tb[ , five_day_deaths := frollmean(world.tb[,new_deaths], 5) ]
+# extended :: 14 day
+world.tb[ , twowk_day_cases := frollmean(world.tb[,new_cases], 14) ]
+world.tb[ , twowk_day_deaths := frollmean(world.tb[,new_deaths], 14) ]
+# NA = 0
+setnafill(world.tb, fill = 0, cols = 7:14)
 # variables
 avg.c <- mean(us.date[,daily_cases]) 
 avg.d <- mean(us.date[,daily_deaths])
 tot.c <- max(us.date[,cum_cases])
 tot.d <- max(us.date[,cum_deaths])
+map <- map_data("world")
 # selections
 us.state.chng <- us.state[date == max(date), .(state ,pct_chng_lstwk)]
 setorder(us.state.chng, -pct_chng_lstwk)
@@ -118,12 +156,6 @@ us.tb <- df.tb[iso2 == "US", .(state, county, fips, date, cum_cases, cum_deaths,
 counties <- us.tb[date == max(date)]
 counties[state == "New York" & county == "New York City", fips := 36061]
 setkey(counties, state)
-
-### WORLDS DATA  ####
-world.tb <- df.tb[,.(date,continent,country,new_cases,new_deaths,cum_cases,cum_deaths)]
-world.tb[,lapply(.SD,sum),.SDcols=c("new_cases","new_deaths","cum_cases","cum_deaths"), by = .(country,continent,date)]
-setkey(world.tb,date)
- 
 
 
 # CREATE FORECASTS :: MULTIPLE MODELS

@@ -2,7 +2,7 @@
 
 ### LOAD PACKAGES
 library(rsconnect)
-library(forecast)
+library(fpp2)
 library(scales)
 library(shiny)
 library(ggplot2)
@@ -210,7 +210,7 @@ width = 'auto',
 height = 'auto'
 )
 
-
+##  COUNTY DATA MAPPED
 output$plot_county_cases <- renderPlot( {
   
   plot_usmap("counties", include = input$counties, data = counties, 
@@ -238,6 +238,7 @@ output$plot_county_deaths <- renderPlot( {
   
 } )
 
+## State data table for inclusion on daily chart tab
 state.table <- us.state[date == max(date), .(state, 
                                              comma(cum_cases), comma(as.integer(cases_per_mill)), 
                                              unit_format(sep = "", unit = "%", accuracy = .1)(pct_chng_lstwk), 
@@ -252,6 +253,7 @@ output$table_states <- renderTable(
 )
 
 
+## Forcasting plots
 forecast.c <- renderPlot({ print(p)
   # autoplot(stf.c) + 
   # geom_forecast(showgap = FALSE, PI = TRUE) + 
@@ -278,8 +280,40 @@ forecast.d <- renderPlot({
 })
 
 
+Ms <- function(x){ number_format(accuracy = 1,
+                scale = 1/1000000,
+                suffix = "M")(x) }
+## World Maps
+output$world.c <- renderPlot({
+  ggplot(world.tb[date == max(date)], aes(fill = cum_cases/1000000)) + 
+    geom_map(aes(map_id = country), map = map) + 
+    expand_limits(x = map$long, y = map$lat) + 
+    scale_fill_continuous(low = "lightblue", high = "blue3", 
+                          name = paste("Cumulative Cases",
+                                       "in millions",
+                                       sep = "\n"), 
+                                       label = scales::comma) + 
+    theme(axis.text = element_blank(),
+          axis.title = element_blank(),
+          axis.ticks = element_blank(),
+          legend.position = "bottom") + 
+    labs(x="",y="")
+})
 
-
+output$world.d <- renderPlot({
+  ggplot(world.tb[date == max(date)], aes(fill = cum_deaths/1000)) + 
+    geom_map(aes(map_id = country), map = map) + 
+    expand_limits(x = map$long, y = map$lat) + 
+    scale_fill_continuous(low = "pink", high = "red3", 
+                          name = paste("Cumulative Deaths",
+                                       "in thousands", 
+                                       sep = "\n"), 
+                          label = scales::comma) + 
+    theme(axis.text = element_blank(),
+          axis.title = element_blank(),
+          axis.ticks = element_blank(),
+          legend.position = "bottom") 
+})
 
 
 
