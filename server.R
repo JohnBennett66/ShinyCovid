@@ -317,6 +317,18 @@ output$world.d <- renderPlot({
 }, width = 400, height = 325)
 
 
+output$other_causes <- renderPlot({
+  
+  ggplot(other.agg[year == 2020 & state == "United States" & !Causes %in% c("All","Natural")]) +
+    geom_col(aes(Causes, Deaths, fill = Infectious)) +
+    coord_flip() +
+    scale_fill_manual(values = c("grey60","#ffa550", "darkorange1")) +
+    scale_y_continuous(labels = comma)
+  
+}, width = 'auto', height = 'auto')
+
+
+
 
 } # function
 

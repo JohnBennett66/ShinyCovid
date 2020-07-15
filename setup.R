@@ -16,7 +16,12 @@ library(lubridate)
 library(usmap)
 library(maps)
 library(shinythemes)
+library(RSocrata)
 ###
+
+###  1. https://data.cdc.gov/api/views/vbim-akqf
+###  2. 
+
 
 
 ###  CAPTURE AND TRANSFORM DATA :: JH DATASET  ####
@@ -31,6 +36,17 @@ df.tb <- fread("https://query.data.world/s/33aafdu2yb5fx4arlb66xhdawgkav3",
 colnames(df.tb) <- c("cum_cases", "county", "date", "state", "continent", "source", 
                      "new_deaths", "fips", "iso3", "country", "iso2", "new_cases", 
                      "cum_deaths")
+other <- read.socrata("https://data.cdc.gov/resource/muzy-jte6.csv", 
+                      app_token = 'i8PjzM1xsQpCkMN4DZvWngIj5', stringsAsFactors = TRUE)
+colnames(other) <- c("state", "year", "weeknum", "wedate", "all_causes", "natural_cause",
+                     "septicemia", "malig_neoplasm", "diabetes", "alzheimer",
+                     "influenza_pneumonia", "cl_respitory", "other_respitory",
+                     "nephritis", "abnormal_unknown", "heart_disease", "cerebrovascular",
+                     "covid-19_multiple", "covid-19_underlying",
+                     "fl_all", "fl_nat", "fl_sept", "fl_neo", "fl_diab", "fl_alz", "fl_infl",
+                     "fl_clrd", "fl_othresp", "fl_nephr", "fl_othrunk", "fl_hd", "fl_strk",
+                     "fl_cov19mult", "fl_cov19undly")
+setDT(other)
 
 ### READ OTHER DATASETS  ####
 pred.stl <- fread(file = "predstl.csv")
@@ -38,6 +54,7 @@ pred.stl[,date := as_date(date)]
 pred.stl.d <- fread(file = "predstld.csv")
 pred.stl.d[,date := as_date(date)]
 p2020 <- fread(file = "p2020.csv")
+jurs.lst <- fread(file = "jurslst.csv")
 
 ### DATA TRANSFORMATIONS  ####
 # friendly names
@@ -93,6 +110,9 @@ us.state[ , twowk_day_deaths := frollmean(us.state[,daily_deaths], 14) ]
 # NA = 0
 setnafill(us.state, fill = 0, cols = 8:15)
 setnafill(us.date, fill = 0, cols = 13:16)
+# STATE LIST
+states.lst <- us.state[,state]
+states.lst <- unique(states.lst)
 ## WORLD
 world.tb <- df.tb[,.(date,continent,country,new_cases,new_deaths,cum_cases,cum_deaths)]
 world.tb <- world.tb[date == max(date)]
@@ -105,7 +125,7 @@ world.tb[country == "Antigua and Barbuda", country := "Antigua"]
 world.tb[country == "Bonaire, Saint Eustatius and Saba", country := "Bonaire"]
 world.tb[country == "Brunei and Darussalam", country := "Brunei"]
 world.tb[country == "CuraÃ§ao", country := "Curacao"]
-world.tb[country == "Chechia", country := "Czech Republic"]
+world.tb[country == "Czechia", country := "Czech Republic"]
 world.tb[country == "Falkland Islands (Malvinas)", country := "Falkland Islands"]
 world.tb[country == "Guinea Bissau", country := "Guinea-Bissau"]
 world.tb[country == "Cote dIvoire", country := "Ivory Coast"]
@@ -128,13 +148,15 @@ world.tb[ , five_day_deaths := frollmean(world.tb[,new_deaths], 5) ]
 # extended :: 14 day
 world.tb[ , twowk_day_cases := frollmean(world.tb[,new_cases], 14) ]
 world.tb[ , twowk_day_deaths := frollmean(world.tb[,new_deaths], 14) ]
-# population numbers
-world.tb <- world.tb[p2020,on = .(country = country)]
-# pop transforms :: world data
-world.tb[,(cases_per_mil := cum_cases/(pop/1000000)]
-world.tb[,deaths_per_mil := cum_deaths/(pop/1000000)]
 # NA = 0
 setnafill(world.tb, fill = 0, cols = 7:14)
+# population numbers
+world.tb <- world.tb[p2020,on = .(country = country)]
+world.tb <- world.tb[!is.na(date)]
+# pop transforms :: world data
+world.tb[,cases_per_mil := cum_cases/(pop/1000000)]
+world.tb[,deaths_per_mil := cum_deaths/(pop/1000000)]
+setorder(world.tb,date,country)
 # variables
 avg.c <- mean(us.date[,daily_cases]) 
 avg.d <- mean(us.date[,daily_deaths])
@@ -163,6 +185,41 @@ counties <- us.tb[date == max(date)]
 counties[state == "New York" & county == "New York City", fips := 36061]
 setkey(counties, state)
 
+#################################### ##
+###  COMPARISON WITH OTHER CAUSES  ####
+#################################### ##
+other.agg <- other[,1:19]
+other.agg <- other.agg[,.(All = sum(all_causes), Natural = sum(natural_cause),
+                          Sepsis = sum(septicemia), Cancer = sum(malig_neoplasm),
+                          Diabetes = sum(diabetes), Alzheimer = sum(alzheimer),
+                          `Influenza & Pneumonia` = sum(influenza_pneumonia),
+                          `Lower Respitory` = sum(cl_respitory), `Other Respitory` = sum(other_respitory),
+                          `Kidney Diseases` = sum(nephritis), Unknown = sum(abnormal_unknown),
+                          `Heart Disease` = sum(heart_disease), Stroke = sum(cerebrovascular),
+                          `Covid-19 w/ Other`= sum(`covid-19_multiple`), `Covid-19` = sum(`covid-19_underlying`)),
+                       by = .(year, state)]
+setnafill(other.agg, fill = 0, cols = 5:17)
+other.agg <- melt(other.agg, id.vars = c('year','state'),
+                  measure = 3:17,
+                  variable.name = "Causes",
+                  value.name = "Deaths")
+other.agg[,Causes :=
+            factor(Causes, levels = rev(
+              c("All", "Natural", "Heart Disease", "Cancer",
+                "Covid-19 w/ Other", "Covid-19", "Lower Respitory",
+                "Stroke", "Alzheimer", "Diabetes", "Unknown",
+                "Influenza & Pneumonia", "Kidney Diseases",
+                "Other Respitory", "Sepsis")))]
+infect <- data.table(Causes = factor(c("All", "Natural", "Heart Disease", "Cancer",
+                                "Covid-19 w/ Other", "Covid-19", "Lower Respitory",
+                                "Stroke", "Alzheimer", "Diabetes", "Unknown",
+                                "Influenza & Pneumonia", "Kidney Diseases",
+                                "Other Respitory", "Sepsis")),
+                     Infectious = factor(c("No","No","No","No","Yes","Yes","Partial","No","No","No","No",
+                           "Yes","Partial","Partial","Yes")))
+
+other.agg <- other.agg[infect, on = .(Causes=Causes)]
+setorder(other.agg,year,state,-Deaths,Causes)
 
 # CREATE FORECASTS :: MULTIPLE MODELS
 # daily cases data.table :: US

@@ -17,7 +17,9 @@ library(maps)
 library(shinythemes)
 ###
 
-
+# STATE LIST
+states.lst <- us.state[,state]
+states.lst <- unique(states.lst)
 
 
 ###  PAGE LAYOUT :: MAIN & SIDEBAR :: SINGLE PLOT  ####
@@ -126,7 +128,7 @@ fluidPage(
                         sidebarPanel(
                           
                           selectInput('counties', p("Which State", style="font-size:13px"), 
-                                      counties[,unique(state)], selected = "Alabama"),
+                                      states.lst, selected = "Alabama"),
                           width = 2
                         ),
                         
@@ -147,6 +149,27 @@ fluidPage(
                       ),
                
              ), #tab-world
+             
+             tabPanel("Other Causes", fluid = TRUE, 
+                     sidebarLayout(
+                       sidebarPanel(
+                         selectInput('state_oc',
+                                     p('Which State?*', style="font-size:13px"),
+                                     jurs.lst[,state], selected = "United States"),
+                                     p("* Choose United States or a specific state; 
+                                        also includes District of Columbia, Puerto Rico, 
+                                       and New York City.", style="font-size:11px"),
+                         width = 2
+                       ),
+                     mainPanel(
+                       plotOutput('other_causes')
+                     ),
+                   ),
+                 ), # tab-"Other Causes
+                     
+                     
+                     
+                     
              
              tabPanel("About", fluid = TRUE,
                       mainPanel(
