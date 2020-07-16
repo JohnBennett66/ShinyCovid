@@ -16,6 +16,7 @@ library(usmap)
 library(maps)
 library(shinythemes)
 ###
+options(datatable.optimize=1)
 
 # STATE LIST
 states.lst <- us.state[,state]

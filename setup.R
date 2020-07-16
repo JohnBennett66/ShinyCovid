@@ -18,9 +18,8 @@ library(maps)
 library(shinythemes)
 library(RSocrata)
 ###
+options(datatable.optimize=1)
 
-###  1. https://data.cdc.gov/api/views/vbim-akqf
-###  2. 
 
 
 
@@ -31,11 +30,13 @@ us.state <- fread("https://query.data.world/s/cgpumxcw4ajvqt6334dwjhay6uhact",
                   drop = c("cumulative_cases_per_100_000",  "cumulative_deaths_per_100_000",
                            "new_cases_7_day_rolling_avg",  "new_deaths_7_day_rolling_avg",
                            "new_deaths_per_100_000", "new_cases_per_100_000"))
+
 df.tb <- fread("https://query.data.world/s/33aafdu2yb5fx4arlb66xhdawgkav3", 
                check.names=TRUE, stringsAsFactors=FALSE);
-colnames(df.tb) <- c("cum_cases", "county", "date", "state", "continent", "source", 
+colnames(df.tb) <- c("county", "cum_cases", "date", "state", "continent", "source", 
                      "new_deaths", "fips", "iso3", "country", "iso2", "new_cases", 
                      "cum_deaths")
+
 other <- read.socrata("https://data.cdc.gov/resource/muzy-jte6.csv", 
                       app_token = 'i8PjzM1xsQpCkMN4DZvWngIj5', stringsAsFactors = TRUE)
 colnames(other) <- c("state", "year", "weeknum", "wedate", "all_causes", "natural_cause",
@@ -64,9 +65,9 @@ colnames(us.state) <- c("state", "date", "pop",
 
 # roll up the states for US daily totals
 us.date <- us.state[
-  ,.(pop = sum(pop),
-     cum_cases = sum(cum_cases), cum_deaths = sum(cum_deaths),
-     daily_cases = sum(daily_cases), daily_deaths = sum(daily_deaths) )
+  ,.(pop = base::sum(pop),
+     cum_cases = base::sum(cum_cases), cum_deaths = base::sum(cum_deaths),
+     daily_cases = base::sum(daily_cases), daily_deaths = base::sum(daily_deaths) )
   , by = .(date)
   ]
 # NA = 0
@@ -115,9 +116,11 @@ states.lst <- us.state[,state]
 states.lst <- unique(states.lst)
 ## WORLD
 world.tb <- df.tb[,.(date,continent,country,new_cases,new_deaths,cum_cases,cum_deaths)]
-world.tb <- world.tb[date == max(date)]
+rpt.dt <- world.tb[country == "United States", unique(date)] %>% 
+            max() 
+world.tb <- world.tb[date == rpt.dt]
 world.tb <- world.tb[,.(new_cases = max(new_cases), new_deaths = max(new_deaths), 
-                        cum_cases = sum(cum_cases), cum_deaths = sum(cum_deaths)),
+                        cum_cases = base::sum(cum_cases), cum_deaths = base::sum(cum_deaths)),
                      by = .(date, country)]
 setkey(world.tb,date,country)
 world.tb[country == "United States", country := "USA"]
@@ -189,20 +192,22 @@ setkey(counties, state)
 ###  COMPARISON WITH OTHER CAUSES  ####
 #################################### ##
 other.agg <- other[,1:19]
-other.agg <- other.agg[,.(All = sum(all_causes), Natural = sum(natural_cause),
-                          Sepsis = sum(septicemia), Cancer = sum(malig_neoplasm),
-                          Diabetes = sum(diabetes), Alzheimer = sum(alzheimer),
-                          `Influenza & Pneumonia` = sum(influenza_pneumonia),
-                          `Lower Respitory` = sum(cl_respitory), `Other Respitory` = sum(other_respitory),
-                          `Kidney Diseases` = sum(nephritis), Unknown = sum(abnormal_unknown),
-                          `Heart Disease` = sum(heart_disease), Stroke = sum(cerebrovascular),
-                          `Covid-19 w/ Other`= sum(`covid-19_multiple`), `Covid-19` = sum(`covid-19_underlying`)),
+other.agg <- other.agg[,.(All = base::sum(all_causes), Natural = base::sum(natural_cause),
+                          Sepsis = base::sum(septicemia), Cancer = base::sum(malig_neoplasm),
+                          Diabetes = base::sum(diabetes), Alzheimer = base::sum(alzheimer),
+                          `Influenza & Pneumonia` = base::sum(influenza_pneumonia),
+                          `Lower Respitory` = base::sum(cl_respitory), `Other Respitory` = base::sum(other_respitory),
+                          `Kidney Diseases` = base::sum(nephritis), Unknown = base::sum(abnormal_unknown),
+                          `Heart Disease` = base::sum(heart_disease), Stroke = base::sum(cerebrovascular),
+                          `Covid-19 w/ Other`= base::sum(`covid-19_multiple`), `Covid-19` = base::sum(`covid-19_underlying`)),
                        by = .(year, state)]
 setnafill(other.agg, fill = 0, cols = 5:17)
 other.agg <- melt(other.agg, id.vars = c('year','state'),
                   measure = 3:17,
                   variable.name = "Causes",
                   value.name = "Deaths")
+other.agg[,Causes := as.character(Causes)]
+setorder(other.agg,Causes)
 other.agg[,Causes :=
             factor(Causes, levels = rev(
               c("All", "Natural", "Heart Disease", "Cancer",
@@ -219,6 +224,14 @@ infect <- data.table(Causes = factor(c("All", "Natural", "Heart Disease", "Cance
                            "Yes","Partial","Partial","Yes")))
 
 other.agg <- other.agg[infect, on = .(Causes=Causes)]
+other.agg[,Causes :=
+            factor(Causes, levels = rev(
+              c("All", "Natural", "Heart Disease", "Cancer",
+                "Covid-19 w/ Other", "Covid-19", "Lower Respitory",
+                "Stroke", "Alzheimer", "Diabetes", "Unknown",
+                "Influenza & Pneumonia", "Kidney Diseases",
+                "Other Respitory", "Sepsis")))]
+
 setorder(other.agg,year,state,-Deaths,Causes)
 
 # CREATE FORECASTS :: MULTIPLE MODELS

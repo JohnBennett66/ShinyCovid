@@ -15,6 +15,7 @@ library(usmap)
 library(maps)
 library(shinythemes)
 ###
+options(datatable.optimize=1)
 
 ###  SETUP :: IMPORT :: TRANSFORM  ####
 source('setup.R')
@@ -299,7 +300,7 @@ output$world.c <- renderPlot({
           axis.ticks = element_blank(),
           legend.position = "bottom") + 
     labs(x="",y="")
-}, width = 400, height = 325)
+}, width = 700, height = 400)
 
 output$world.d <- renderPlot({
   ggplot(world.tb[date == max(date)], aes(fill = cum_deaths/1000)) + 
@@ -314,7 +315,7 @@ output$world.d <- renderPlot({
           axis.title = element_blank(),
           axis.ticks = element_blank(),
           legend.position = "bottom") 
-}, width = 400, height = 325)
+}, width = 700, height = 400)
 
 
 output$other_causes <- renderPlot({
@@ -323,9 +324,33 @@ output$other_causes <- renderPlot({
     geom_col(aes(Causes, Deaths, fill = Infectious)) +
     coord_flip() +
     scale_fill_manual(values = c("grey60","#ffa550", "darkorange1")) +
-    scale_y_continuous(labels = comma)
+    scale_y_continuous(labels = comma) + 
+    labs(title = paste0("Causes of Death in the US for 2020 (year-to-date)"),
+         subtitle = paste(paste0("Total US Deaths (all causes) :: ", 
+                                 format(other.agg[year == 2020 & state == "United States" & Causes == "All",Deaths]
+                                   , big.mark = ",")),
+                          paste0("Total US Deaths (natural causes) :: ", 
+                                 format(other.agg[year == 2020 & state == "United States" & Causes == "Natural",Deaths]
+                                        , big.mark = ",")),
+                          paste0("Percent of Covid-19 among Natural Causes :: ", 
+                                 format((other.agg[year == 2020 & state == "United States" & Causes == "Covid-19",Deaths] / 
+                                          other.agg[year == 2020 & state == "United States" & Causes == "Natural",Deaths] ) *
+                                          100,
+                                          big.mark = ",", digits = 2), "%"),
+                          paste0("Percent of Covid-19 among Infectious Diseases*:: ", 
+                                 format((other.agg[year == 2020 & state == "United States" & Causes == "Covid-19",Deaths] / 
+                                          other.agg[year == 2020 & state == "United States" & 
+                                                      Causes %in% c("Covid-19 w/ Other","Influenza & Pneumonia","Sepsis"),
+                                                    sum(Deaths)]) * 100 ,
+                                         big.mark = ",", digits = 3), "%"),
+                          sep = "\n"),
+         caption = paste("* where Infectious = Yes",
+                         "** always in US total descending order; your state may differ",
+                         sep = "\n"),
+         y = "Number of Deaths by Cause for 2020",
+         x = "Cause of Death :: Descending Order**")
   
-}, width = 'auto', height = 'auto')
+}, width = 800, height = 600)
 
 
 
