@@ -33,9 +33,15 @@ us.state <- fread("https://query.data.world/s/cgpumxcw4ajvqt6334dwjhay6uhact",
 
 df.tb <- fread("https://query.data.world/s/33aafdu2yb5fx4arlb66xhdawgkav3", 
                check.names=TRUE, stringsAsFactors=FALSE);
-colnames(df.tb) <- c("county", "cum_cases", "date", "state", "continent", "source", 
-                     "new_deaths", "fips", "iso3", "country", "iso2", "new_cases", 
-                     "cum_deaths")
+setnames(df.tb, 
+         c("PEOPLE_POSITIVE_CASES_COUNT", "COUNTY_NAME", "REPORT_DATE", "PROVINCE_STATE_NAME", "CONTINENT_NAME", 
+           "DATA_SOURCE_NAME", "PEOPLE_DEATH_NEW_COUNT", "COUNTY_FIPS_NUMBER", "COUNTRY_ALPHA_3_CODE", 
+           "COUNTRY_SHORT_NAME", "COUNTRY_ALPHA_2_CODE", "PEOPLE_POSITIVE_NEW_CASES_COUNT", "PEOPLE_DEATH_COUNT" ),
+         c("cum_cases", "county", "date", "state", "continent", 
+           "source", "new_deaths", "fips", "iso3", 
+           "country", "iso2", "new_cases", "cum_deaths")
+        )
+
 
 other <- read.socrata("https://data.cdc.gov/resource/muzy-jte6.csv", 
                       app_token = 'i8PjzM1xsQpCkMN4DZvWngIj5', stringsAsFactors = TRUE)

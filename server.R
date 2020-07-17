@@ -299,8 +299,12 @@ output$world.c <- renderPlot({
           axis.title = element_blank(),
           axis.ticks = element_blank(),
           legend.position = "bottom") + 
-    labs(x="",y="")
-}, width = 700, height = 400)
+    labs(x="",y="",
+         title = paste0("Worldwide Cumulative Cases & Deaths as of :: ", 
+                        day(rpt.dt)," ", 
+                        month(rpt.dt, label = TRUE, abbr = FALSE), " ",
+                        year(rpt.dt)))
+}, width = 650, height = 400)
 
 output$world.d <- renderPlot({
   ggplot(world.tb[date == max(date)], aes(fill = cum_deaths/1000)) + 
@@ -315,7 +319,7 @@ output$world.d <- renderPlot({
           axis.title = element_blank(),
           axis.ticks = element_blank(),
           legend.position = "bottom") 
-}, width = 700, height = 400)
+}, width = 650, height = 400)
 
 
 output$other_causes <- renderPlot({
@@ -346,6 +350,9 @@ output$other_causes <- renderPlot({
                           sep = "\n"),
          caption = paste("* where Infectious = Yes",
                          "** always in US total descending order; your state may differ",
+                         paste0("Last Reporting Date :: ",
+                                other[state == "United States", max(mdy(wedate))]),
+                         "Data is weekly aggregates, reporting date is last reporting week ending",
                          sep = "\n"),
          y = "Number of Deaths by Cause for 2020",
          x = "Cause of Death :: Descending Order**")
