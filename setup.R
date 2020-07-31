@@ -41,7 +41,7 @@ setnames(df.tb,
            "source", "new_deaths", "fips", "iso3", 
            "country", "iso2", "new_cases", "cum_deaths")
         )
-
+sources <- df.tb[,unique(source)]
 
 other <- read.socrata("https://data.cdc.gov/resource/muzy-jte6.csv", 
                       app_token = 'i8PjzM1xsQpCkMN4DZvWngIj5', stringsAsFactors = TRUE)
@@ -61,6 +61,7 @@ pred.stl[,date := as_date(date)]
 pred.stl.d <- fread(file = "predstld.csv")
 pred.stl.d[,date := as_date(date)]
 p2020 <- fread(file = "p2020.csv")
+p2020[,pop := as.integer(pop/1000)]
 jurs.lst <- fread(file = "jurslst.csv")
 
 ### DATA TRANSFORMATIONS  ####
@@ -121,7 +122,25 @@ setnafill(us.date, fill = 0, cols = 13:16)
 states.lst <- us.state[,state]
 states.lst <- unique(states.lst)
 ## WORLD
+df.tb[country == "United States", country := "USA"]
+df.tb[country == "Antigua and Barbuda", country := "Antigua"]
+df.tb[country == "Bonaire, Saint Eustatius and Saba", country := "Bonaire"]
+df.tb[country == "Brunei and Darussalam", country := "Brunei"]
+df.tb[country == "CuraÃ§ao", country := "Curacao"]
+df.tb[country == "Czechia", country := "Czech Republic"]
+df.tb[country == "Falkland Islands (Malvinas)", country := "Falkland Islands"]
+df.tb[country == "Guinea Bissau", country := "Guinea-Bissau"]
+df.tb[country == "Cote dIvoire", country := "Ivory Coast"]
+df.tb[country == "Congo", country := "Republic of Congo"]
+df.tb[country == "Saint Kitts and Nevis", country := "Saint Kitts"]
+df.tb[country == "Saint Vincent and the Grenadines", country := "Saint Vincent"]
+df.tb[country == "Timor Leste", country := "Timor-Leste"]
+df.tb[country == "Trinidad and Tobago", country := "Trinidad"]
+df.tb[country == "United Republic of Tanzania", country := "Tanzania"]
+df.tb[country == "United Kingdom", country := "UK"]
 world.tb <- df.tb[,.(date,continent,country,new_cases,new_deaths,cum_cases,cum_deaths)]
+world.all <- df.tb[,.(date,continent,country,new_cases,new_deaths,cum_cases,cum_deaths)]
+world.wk <- df.tb[,.(date,country,new_cases,new_deaths,cum_cases,cum_deaths)]
 rpt.dt <- world.tb[country == "United States", unique(date)] %>% 
             max() 
 world.tb <- world.tb[date == rpt.dt]
@@ -129,22 +148,6 @@ world.tb <- world.tb[,.(new_cases = max(new_cases), new_deaths = max(new_deaths)
                         cum_cases = base::sum(cum_cases), cum_deaths = base::sum(cum_deaths)),
                      by = .(date, country)]
 setkey(world.tb,date,country)
-world.tb[country == "United States", country := "USA"]
-world.tb[country == "Antigua and Barbuda", country := "Antigua"]
-world.tb[country == "Bonaire, Saint Eustatius and Saba", country := "Bonaire"]
-world.tb[country == "Brunei and Darussalam", country := "Brunei"]
-world.tb[country == "CuraÃ§ao", country := "Curacao"]
-world.tb[country == "Czechia", country := "Czech Republic"]
-world.tb[country == "Falkland Islands (Malvinas)", country := "Falkland Islands"]
-world.tb[country == "Guinea Bissau", country := "Guinea-Bissau"]
-world.tb[country == "Cote dIvoire", country := "Ivory Coast"]
-world.tb[country == "Congo", country := "Republic of Congo"]
-world.tb[country == "Saint Kitts and Nevis", country := "Saint Kitts"]
-world.tb[country == "Saint Vincent and the Grenadines", country := "Saint Vincent"]
-world.tb[country == "Timor Leste", country := "Timor-Leste"]
-world.tb[country == "Trinidad and Tobago", country := "Trinidad"]
-world.tb[country == "United Republic of Tanzania", country := "Tanzania"]
-world.tb[country == "United Kingdom", country := "UK"]
 # week over week change
 world.tb[,cum_cases_lstwk := shift(cum_cases,7), by = country]
 world.tb[,pct_chng_lstwk := ((cum_cases - cum_cases_lstwk)/cum_cases_lstwk)*100]
@@ -166,6 +169,28 @@ world.tb <- world.tb[!is.na(date)]
 world.tb[,cases_per_mil := cum_cases/(pop/1000000)]
 world.tb[,deaths_per_mil := cum_deaths/(pop/1000000)]
 setorder(world.tb,date,country)
+# changes :: day to day, week to week 
+world.tb[,daily_change_cases := shift(cum_cases,1), by = country]
+world.tb[,daily_change_deaths := shift(cum_deaths,1), by = country]
+world.tb[,daily_cases_pop := (new_cases/pop)*100, by = country]
+world.tb[,daily_deaths_pop := (new_deaths/pop)*100, by = country]
+# world weekly
+world.wk[,date := ymd(date)]
+world.wk[,country := as.factor(country)]
+setnafill(world.wk, fill = 0, cols = 3:6)
+setorder(world.wk, country, date)
+## >>>>> SUMMARIZE TABLE HERE TO DATE LEVEL, THEN PROCEED
+world.wk <- world.wk[p2020, on = .(country = country)]
+world.wk[,wknum := week(date)]
+world.wk[,yr := year(date)]
+world.wk <- world.wk[,.(new_cases = sum(new_cases), new_deaths = sum(new_deaths), 
+            cum_cases = sum(cum_cases), cum_deaths = sum(cum_deaths), 
+            pop = max(pop), yr = max(yr)),
+         by = .(wknum, country)]
+country.slct <- world.wk[,.(cum_cases = max(cum_cases), cum_deaths = max(cum_deaths)), by = .(country)]
+setnafill(country.slct, fill = 0, cols = 2:3)
+setorder(country.slct, -cum_deaths)
+
 # variables
 avg.c <- mean(us.date[,daily_cases]) 
 avg.d <- mean(us.date[,daily_deaths])

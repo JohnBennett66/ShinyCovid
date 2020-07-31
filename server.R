@@ -90,8 +90,8 @@ output$plot_dus <- renderPlot( {
         geom_hline(aes(yintercept = avg.d), colour = 'grey1', size = 1) +
         scale_x_date(limits = c(start.date, end.date + 1)) +
         labs(title = paste0("Daily Deaths Covid-19 in US by Date — 29 February to current (",end.date,")"),
-             subtitle = paste(paste0("Total US Deaths :: ", format(tot.c, big.mark = ",") ),
-                              paste0("Deaths per million Americans :: ", format(as.integer(tot.c / 327), big.mark = ",") ),
+             subtitle = paste(paste0("Total US Deaths :: ", format(tot.d, big.mark = ",") ),
+                              paste0("Deaths per million Americans :: ", format(as.integer(tot.d / 327), big.mark = ",") ),
                               paste0("Days since 29 February 2020 :: ", d[[1]]),
                               "Five Day Moving Average :: Blue Line",
                               "14 Day Moving Average :: Light Blue Line",

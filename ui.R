@@ -142,13 +142,22 @@ fluidPage(
                       
                       ), #tab-counties-us
              
-             tabPanel("World", fluid = TRUE,
+             tabPanel("World — Rankings", fluid = TRUE,
                       
                       mainPanel(
                         plotOutput('world.c'),
                         plotOutput('world.d')
                       ),
                
+             ), #tab-world
+             
+             tabPanel("World — Trends", fluid = TRUE,
+                      
+                      mainPanel(
+                        plotOutput('world.ct'),
+                        plotOutput('world.dt')
+                      ),
+                      
              ), #tab-world
              
              tabPanel("Other Causes", fluid = TRUE, 
