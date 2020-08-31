@@ -7,6 +7,7 @@ library(fpp2)
 library(scales)
 library(shiny)
 library(ggplot2)
+library(ggrepel)
 library(stringr)
 library(wbstats)
 library(dplyr)
@@ -149,16 +150,37 @@ fluidPage(
                         plotOutput('world.d')
                       ),
                
-             ), #tab-world
+             ), #tab-world-rankings
              
              tabPanel("World — Trends", fluid = TRUE,
                       
                       mainPanel(
-                        plotOutput('world.ct'),
-                        plotOutput('world.dt')
-                      ),
+                        tabsetPanel(
+                          tabPanel("Surging",
+                            plotOutput('world.surge') 
+                          ), 
+                          tabPanel("Recent Wave",
+                              plotOutput('world.recent')
+                          ),  
+                          tabPanel("Wave Past",
+                              plotOutput('world.past') 
+                          )
+                        ) # tabset
+                      )
+                        
+             ), #tab-world-trend
+             
+             tabPanel("World — Stats", fluid = TRUE, 
                       
-             ), #tab-world
+                      mainPanel(
+                        h3("Table of Basis Stats for World Countries"),
+                        h5("Sorted by 'Deaths per Million Pop' descending"),
+                        h5("You can search for a country using the browser's search capability — ctrl + F"),
+                        tableOutput('stats_world')
+                      )
+                      
+                      
+            ), #tab-world-stats
              
              tabPanel("Other Causes", fluid = TRUE, 
                      sidebarLayout(

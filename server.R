@@ -6,6 +6,7 @@ library(fpp2)
 library(scales)
 library(shiny)
 library(ggplot2)
+library(ggrepel)
 library(stringr)
 library(wbstats)
 library(dplyr)
@@ -282,9 +283,9 @@ forecast.d <- renderPlot({
 })
 
 
-Ms <- function(x){ number_format(accuracy = 1,
-                scale = 1/1000000,
-                suffix = "M")(x) }
+
+
+
 ## World Maps
 output$world.c <- renderPlot({
   ggplot(world.tb[date == max(date)], aes(fill = cum_cases/1000000)) + 
@@ -321,6 +322,147 @@ output$world.d <- renderPlot({
           legend.position = "bottom") 
 }, width = 650, height = 400)
 
+output$world.ct <- renderPlot({
+  setorder(country.slct,-cum_cases)
+  
+  ggplot(world.ct.data[country %in% country.slct[1:10,country]]) + 
+    geom_line(aes(week, new_cases, colour = country), size = 1) + 
+    geom_text_repel(data = world.ct.data[country %in% country.slct[1:10,country] & 
+                                      week == world.ct.data[country == "USA", max(week)]], 
+                    aes(week, new_cases, label = country)) + 
+    scale_y_continuous(name = "Number of New Cases by Week", labels = comma) + 
+    scale_colour_viridis_d(option = "C") + 
+    theme(panel.background = element_rect(colour = "black", fill = "grey70"),
+        legend.position = "right", 
+        legend.key = element_rect(fill = "grey65", colour = "grey40")) + 
+    labs(title = paste0("Weekly Cases Covid-19 for Top Ten Countries"), 
+         caption = "Top Twenty by Cumulative Cases (descending)", 
+         y = "Cumulative Cases", 
+         x = "2020")
+  
+}, width = "auto", height = "auto")
+
+output$world.ct2 <- renderPlot({
+  setorder(country.slct,-cum_cases)
+  temp <- world.ct.data[country %in% country.slct[1:20,country]]
+  list1 <- temp[week == max(week)]
+  setorder(list1, -cum_cases)
+  list1 <- list1[,country]
+  temp$country <- factor(temp$country, levels = list1)
+  
+  
+  ggplot(temp) + 
+    geom_line(aes(week, new_cases), size = 1) + 
+    scale_y_continuous(name = "Number of New Cases by Week", labels = comma) + 
+    scale_colour_viridis_d(option = "C") + 
+    theme(panel.background = element_rect(colour = "black", fill = "grey90"),
+          axis.text.y = element_blank(), 
+          axis.ticks.y = element_blank(), 
+          strip.background = element_rect(fill = "lightslategrey"), 
+          strip.text = element_text(face = "bold", colour = "gold", size = 10)) + 
+    labs(title = paste0("Weekly Cases Covid-19 for Top Twenty Countries"), 
+         caption = "Top Twenty by Cumulative Cases (descending)", 
+         y = "Cumulative Cases", 
+         x = "2020") + 
+    facet_wrap(.~country, scales = 'free')
+  
+}, width = "auto", height = "auto")
+
+output$world.dt <- renderPlot({
+  setorder(country.slct,-cum_deaths)
+  
+  ggplot(world.ct.data[country %in% country.slct[1:10,country]]) + 
+    geom_line(aes(week, new_deaths, colour = country), size = 1) + 
+    geom_text_repel(data = world.ct.data[country %in% country.slct[1:10,country] & 
+                                           week == world.ct.data[country == "USA", max(week)]], 
+                    aes(week, new_deaths, label = country)) + 
+    scale_y_continuous(name = "Number of New Deaths by Week", labels = comma) + 
+    scale_colour_viridis_d(option = "C") + 
+    theme(panel.background = element_rect(colour = "black", fill = "grey70"),
+        legend.position = "right",
+        legend.key = element_rect(fill = "grey65", color = "grey40")) + 
+    labs(title = paste0("Weekly Deaths Covid-19 for Top Ten Countries"),
+         caption = "Top Twenty by Cumulative Deaths (descending)",
+         y = "Cumulative Cases",
+         x = "2020")
+  
+}, width = "auto", height = "auto")
+
+output$world.surge <- renderPlot({
+  
+  ggplot(world.all[country %in% select.cntry[[1]] & situation == "Surging"]) + 
+    geom_line(aes(date, new_cases), size = 1) + 
+    scale_y_continuous(name = "Number of New Cases by Week", labels = comma) + 
+    scale_colour_viridis_d(option = "C") + 
+    theme(panel.background = element_rect(colour = "black", fill = "grey90"),
+          axis.text.y = element_blank(), 
+          axis.ticks.y = element_blank(), 
+          strip.background = element_rect(fill = "lightslategrey"), 
+          strip.text = element_text(face = "bold", colour = "gold", size = 14)) + 
+    labs(title = paste0("Weekly Cases Covid-19 for Top Twenty Countries"), 
+         caption = "Top Twenty by Cumulative Cases (descending)", 
+         y = "Cumulative Cases", 
+         x = "2020") + 
+    facet_wrap(vars(country), scales = 'free', ncol = 3)
+  
+}, width = "auto", height = 1000)
+
+output$world.recent <- renderPlot({
+  
+  ggplot(world.all[country %in% select.cntry[[1]] & situation == "Recent Wave"]) + 
+    geom_line(aes(date, new_cases), size = 1) + 
+    scale_y_continuous(name = "Number of New Cases by Week", labels = comma) + 
+    scale_colour_viridis_d(option = "C") + 
+    theme(panel.background = element_rect(colour = "black", fill = "grey90"),
+          axis.text.y = element_blank(), 
+          axis.ticks.y = element_blank(), 
+          strip.background = element_rect(fill = "lightslategrey"), 
+          strip.text = element_text(face = "bold", colour = "gold", size = 14)) + 
+    labs(title = paste0("Weekly Cases Covid-19 for Top Twenty Countries"), 
+         caption = "Top Twenty by Cumulative Cases (descending)", 
+         y = "Cumulative Cases", 
+         x = "2020") + 
+    facet_wrap(vars(country), scales = 'free', ncol = 3)
+  
+}, width = "auto", height = 800)  ##  <<<<<<   ADJUST ROW HEIGHT HERE
+
+output$world.past <- renderPlot({
+  
+  ggplot(world.all[country %in% select.cntry[[1]] & situation == "Wave Past"]) + 
+    geom_line(aes(date, new_cases), size = 1) + 
+    scale_y_continuous(name = "Number of New Cases by Week", labels = comma) + 
+    scale_colour_viridis_d(option = "C") + 
+    theme(panel.background = element_rect(colour = "black", fill = "grey90"),
+          axis.text.y = element_blank(), 
+          axis.ticks.y = element_blank(), 
+          strip.background = element_rect(fill = "lightslategrey"), 
+          strip.text = element_text(face = "bold", colour = "gold", size = 14)) + 
+    labs(title = paste0("Weekly Cases Covid-19 for Top Twenty Countries"), 
+         caption = "Top Twenty by Cumulative Cases (descending)", 
+         y = "Cumulative Cases", 
+         x = "2020") + 
+    facet_wrap(vars(country), scales = 'free', ncol = 3)
+  
+}, width = "auto", height = 1800)
+
+
+## World data table for inclusion on world stat chart tab
+setorder(world.all, country)
+max.date <- world.all[country == "USA", max(date)]
+world.table <- world.all[date == max.date, 
+                         .(country, pop, cum_cases, cum_deaths, 
+                           cases_per_mil, deaths_per_mil
+                           ) ]
+setnames(world.table, 1:6,
+         c("Country", "Population (in Millions)", "Total Cases", "Total Deaths", 
+           "Cases per Million Pop", "Deaths per Million Pop"),
+         skip_absent = FALSE
+)
+world.table <- world.table[`Deaths per Million Pop` >= 0]
+setorder(world.table, -`Deaths per Million Pop`)
+output$stats_world <- renderTable(
+  world.table[`Population (in Millions)` > 0], na = "—", digits = 2
+)
 
 output$other_causes <- renderPlot({
   
