@@ -29,14 +29,15 @@ Ms <- function(x){
 }
 
 
-###  CAPTURE AND TRANSFORM DATA :: JH DATASET  ####
-# data.world covid-19 datasource
+###  CAPTURE AND TRANSFORM DATA  ####
+# data.world :: covid-19 US :: john hopkins data
 us.state <- fread("https://query.data.world/s/cgpumxcw4ajvqt6334dwjhay6uhact",
                   check.names = TRUE,
                   drop = c("cumulative_cases_per_100_000",  "cumulative_deaths_per_100_000",
                            "new_cases_7_day_rolling_avg",  "new_deaths_7_day_rolling_avg",
                            "new_deaths_per_100_000", "new_cases_per_100_000"))
 
+# data.world :: covid WORLD :: multi-source
 df.tb <- fread("https://query.data.world/s/33aafdu2yb5fx4arlb66xhdawgkav3", 
                check.names=TRUE, stringsAsFactors=FALSE);
 setnames(df.tb, 
@@ -49,6 +50,7 @@ setnames(df.tb,
 )
 sources <- df.tb[,unique(source)]
 
+# CDC :: covid and other US :: multi-source(governmental)
 other <- read.socrata("https://data.cdc.gov/resource/muzy-jte6.csv", 
                       app_token = 'i8PjzM1xsQpCkMN4DZvWngIj5', stringsAsFactors = TRUE)
 colnames(other) <- c("state", "year", "weeknum", "wedate", "all_causes", "natural_cause",
@@ -60,6 +62,10 @@ colnames(other) <- c("state", "year", "weeknum", "wedate", "all_causes", "natura
                      "fl_clrd", "fl_othresp", "fl_nephr", "fl_othrunk", "fl_hd", "fl_strk",
                      "fl_cov19mult", "fl_cov19undly")
 setDT(other)
+
+###  SET SOME VARIABLES  ####
+map_w <- map_data("world")
+map_us <- map_data("states")
 
 ### READ OTHER DATASETS  ####
 pred.stl <- fread(file = "predstl.csv")
@@ -77,6 +83,7 @@ select.cntry <- fread(file = "select_countries_list.csv", header = FALSE)
 
 # create world.data table
 world.data <- df.tb
+world.data[ , date := as_date(date)]
 setcolorder(world.data, c(4,10,11,9,3,2,8,5,6,12,7,1,13))
 
 ##  Transform Data
@@ -100,7 +107,9 @@ world.data[country == "United Republic of Tanzania", country := "Tanzania"]
 world.data[country == "United Kingdom", country := "UK"]
 
 # aggregate to country level
-world.data <- world.data[ , .(new_cases = sum(new_cases), new_deaths = sum(new_deaths), cum_cases = sum(cum_cases), cum_deaths = sum(cum_deaths)), by = .(date, country, continent)]
+world.data <- world.data[ , .(new_cases = sum(new_cases), new_deaths = sum(new_deaths), 
+                              cum_cases = sum(cum_cases), cum_deaths = sum(cum_deaths))
+                          , by = .(date, country, continent)]
 setorder(world.data, country, date)
 
 ##  Create Metrics and Aggregates
@@ -112,18 +121,66 @@ world.data[ , hundredk_pop := (pop * 10)]
 
 
 ###  ANALYSIS :: WORLD    ####
+# cumulative per 100k population
+world.data[ , ccper100k := cum_cases/hundredk_pop]
+world.data[ , cdper100k := cum_deaths/hundredk_pop]
+
+# last week's cumulative
+world.data[ , cc100k_lswk := shift(ccper100k, 7), by = country]
+world.data[ , cd100k_lswk := shift(cdper100k, 7), by = country]
+
+# percent change (cumulative) from last week
+world.data[ , cc_pctchg := (ccper100k-cc100k_lswk)/cc100k_lswk]
+world.data[ , cd_pctchg := (cdper100k-cd100k_lswk)/cd100k_lswk]
+setnafill(world.data, fill = 0, cols = 12:15)
+
+##  TODAY'S DATA  ####
+world.today <- world.data[date == (max(date) - 1)]
 
 
 
 
 
 
+###  UNITES STATES ANALYSIS  ####
+###  TRANSFROM DATA       ####
+
+# create us.data table
+us.data <- df.tb
+us.data[ , date := as_date(date)]
+setcolorder(us.data, c(4,10,11,9,3,2,8,5,6,12,7,1,13))
+
+# aggregate to the US level
+us.data <- us.data[iso2 == "US"]
+us.data <- us.data[ , .(new_cases = sum(new_cases), new_deaths = sum(new_deaths), 
+                              cum_cases = sum(cum_cases), cum_deaths = sum(cum_deaths))
+                          , by = .(date, state)]
+setorder(us.data, state, date)
+
+##  Create Metrics and Aggregates
+# add population (in Millions)
+us.data <- us.data[p2020, on = .(country = country)]
+us.data <- us.data[!is.na(date)]
+# 100,000s of population
+us.data[ , hundredk_pop := (pop * 10)]
 
 
+###  ANALYSIS :: WORLD    ####
+# cumulative per 100k population
+us.data[ , ccper100k := cum_cases/hundredk_pop]
+us.data[ , cdper100k := cum_deaths/hundredk_pop]
 
+# last week's cumulative
+us.data[ , cc100k_lswk := shift(ccper100k, 7), by = country]
+us.data[ , cd100k_lswk := shift(cdper100k, 7), by = country]
 
+# percent change (cumulative) from last week
+us.data[ , cc_pctchg := (ccper100k-cc100k_lswk)/cc100k_lswk]
+us.data[ , cd_pctchg := (cdper100k-cd100k_lswk)/cd100k_lswk]
+setnafill(us.data, fill = 0, cols = 12:15)
 
-
+##  TODAY'S DATA  ####
+us.today <- us.data[date == (max(date) - 1)]
 
 
 

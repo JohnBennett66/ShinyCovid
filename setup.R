@@ -26,14 +26,15 @@ Ms <- function(x){
   }
 
 
-###  CAPTURE AND TRANSFORM DATA :: JH DATASET  ####
-# data.world covid-19 datasource
+###  CAPTURE AND TRANSFORM DATA  ####
+# data.world :: covid-19 US :: john hopkins data
 us.state <- fread("https://query.data.world/s/cgpumxcw4ajvqt6334dwjhay6uhact",
                   check.names = TRUE,
                   drop = c("cumulative_cases_per_100_000",  "cumulative_deaths_per_100_000",
                            "new_cases_7_day_rolling_avg",  "new_deaths_7_day_rolling_avg",
                            "new_deaths_per_100_000", "new_cases_per_100_000"))
 
+# data.world :: covid WORLD :: multi-source
 df.tb <- fread("https://query.data.world/s/33aafdu2yb5fx4arlb66xhdawgkav3", 
                check.names=TRUE, stringsAsFactors=FALSE);
 setnames(df.tb, 
@@ -46,6 +47,7 @@ setnames(df.tb,
         )
 sources <- df.tb[,unique(source)]
 
+# CDC :: covid and other US :: multi-source(governmental)
 other <- read.socrata("https://data.cdc.gov/resource/muzy-jte6.csv", 
                       app_token = 'i8PjzM1xsQpCkMN4DZvWngIj5', stringsAsFactors = TRUE)
 colnames(other) <- c("state", "year", "weeknum", "wedate", "all_causes", "natural_cause",
