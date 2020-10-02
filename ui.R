@@ -1,8 +1,9 @@
 ### UI SCRIPT
 ### 
-
+# api key bc4fef59f0cef5d4de7b8e9c7b55218eaae523fc
 ### LOAD PACKAGES
 library(rsconnect)
+library(censusapi)
 library(fpp2)
 library(scales)
 library(shiny)
@@ -43,7 +44,7 @@ fluidPage(
              sidebarLayout(
                sidebarPanel(
                  # shinythemes::themeSelector(),
-                 selectInput('daily', p("Which Data? Cases or Deaths", style="font-size:13px"),
+                 selectInput('world_type', p("Which Data? Cases or Deaths", style="font-size:13px"),
                              c("Daily Cases" = "cases", "Daily Deaths" = "deaths")),
     
                  # selectInput('forecast', p("Include Forcast? Yes/No", style="font-size:13px"),
@@ -54,41 +55,12 @@ fluidPage(
                mainPanel(
                  h4("Cumulative Cases"),
                  plotOutput('plot_today_world'), 
-                 HTML("This chart can be misleading because it treats each country the same. 
-                      We would expect countries with more people, i.e., a larger population, <br>
-                      to have more cases or deaths than countries with fewer people.  
-                      To be fairer in our analysis and ranking, we should compare a &lsquo;rate&lsquo;, <br>
-                      which is a comparison of equal values. In this case that means how many cases 
-                      per some number of population. Most countries have <br> 
-                      millions of people so, using a group of 100,000 people for our rate is a good idea. <br>
-                      It could be groups of 10,000 or 1,000,000 or any number. 
-                      I think 100,000 works well because it makes the numbers a good size. 
-                      If you pick <br>1,000,000, then some of the small countries have 0.01 cases per Millon, 
-                      or if you pick 10,000, then some of the large countries have 1,000 <br> cases or more. 
-                      It is an arbitray choice, I just like 100,000. <br> 
-                      For these charts it does not make too much difference because they have no numbers. 
-                      These charts use shading to show which country has <br> &#8220;the most&#8221;, where 
-                      darker shading means more cases."),
+                 htmlOutput('text_today_world'),
                  h4("Cumulative Cases per 100,000 population"), 
                  plotOutput('plot_today_world_100k'), 
-                 HTML("Now we are looking at the rate of cases or the rate of deaths, which is fairer 
-                      and more accurate if we want to understand Covid; <br> 
-                      what is happening?, where is it the worst?, where is it getting better?, etc. 
-                      In the chart above the US was the worst and only a <br> 
-                      couple other countries were near the top. In this chart we see that many countries 
-                      are near the level of the US for &#8220;the number <br> 
-                      of people who have tested positive for COVID-19 per 100,000 people in that country&#8221;. 
-                      Now the US has many other countries that are also on <br> 
-                      the top end of the scale."),
+                 htmlOutput('text_today_world_100k'),
                  h4("Cumulative Cases per 100,000 percent change"), 
                  plotOutput('plot_today_world_100k_pctchg'),
-                 HTML("In this chart we are looking at the percentage of change between a countries 
-                      &#8220;rate of cases per 100,000 people last week&#8221; <br> 
-                      and that same rate this week. This shows us where it is getting worse and 
-                      where it is staying the same. It will not get <br> 
-                      &#8220;better&#8221; because this is cumulative cases so this rate never goes 
-                      in a negative direction.
-                      <br><br>"),
                  # HTML(popsicle),
                  HTML("<strong>NOTE: </strong>The percent change is week over week. <br>  
                       The formula :: ( (today&lsquo;s value - last week&lsquo;s value) &#247; 
@@ -110,7 +82,7 @@ fluidPage(
                       sidebarLayout(
                         sidebarPanel(
                           # shinythemes::themeSelector(),
-                          selectInput('daily', p("Which Data? Cases or Deaths", style="font-size:13px"),
+                          selectInput('us_type', p("Which Data? Cases or Deaths", style="font-size:13px"),
                                       c("Daily Cases" = "cases", "Daily Deaths" = "deaths")),
                           
                           # selectInput('forecast', p("Include Forcast? Yes/No", style="font-size:13px"),
@@ -120,7 +92,7 @@ fluidPage(
                         ), # sidebarpanel
                         mainPanel(
                           h4("Cumulative Cases"),
-                          plotOutput('plot_today_world'), 
+                          plotOutput('plot_today_us'), 
                           HTML("This chart can be misleading because it treats each country the same. 
                       We would expect countries with more people, i.e., a larger population, <br>
                       to have more cases or deaths than countries with fewer people.  
@@ -137,7 +109,7 @@ fluidPage(
                       These charts use shading to show which country has <br> &#8220;the most&#8221;, where 
                       darker shading means more cases."),
                           h4("Cumulative Cases per 100,000 population"), 
-                          plotOutput('plot_today_world_100k'), 
+                          plotOutput('plot_today_us_100k'), 
                           HTML("Now we are looking at the rate of cases or the rate of deaths, which is fairer 
                       and more accurate if we want to understand Covid; <br> 
                       what is happening?, where is it the worst?, where is it getting better?, etc. 
@@ -148,7 +120,7 @@ fluidPage(
                       Now the US has many other countries that are also on <br> 
                       the top end of the scale."),
                           h4("Cumulative Cases per 100,000 percent change"), 
-                          plotOutput('plot_today_world_100k_pctchg'),
+                          plotOutput('plot_today_us_100k_pctchg'),
                           HTML("In this chart we are looking at the percentage of change between a countries 
                       &#8220;rate of cases per 100,000 people last week&#8221; <br> 
                       and that same rate this week. This shows us where it is getting worse and 
@@ -167,7 +139,25 @@ fluidPage(
                           
                         ) # mainpanel
                       ), # sidebarlayout
-             ) #tabpanel
+             ), #tabpanel where we are now
+             "----", 
+             tabPanel("US Trends", fluid = TRUE,
+                                          h3("The States ranked:"),
+                                          sidebarLayout(
+                                            sidebarPanel(
+                                              # shinythemes::themeSelector(),
+                                              selectInput('us_type', p("Which Data? Cases or Deaths", style="font-size:13px"),
+                                                          c("Daily Cases" = "cases", "Daily Deaths" = "deaths")),
+                                              
+                                              # selectInput('forecast', p("Include Forcast? Yes/No", style="font-size:13px"),
+                                              #             c("No" = "no", "Yes" = "yes")),
+                                              
+                                              width = 2
+                                            ), # sidebarpanel
+                                            mainPanel(
+                                              
+                                            ), 
+                                          ), #tabpanel us trends 
              
   ),  # navbarmenu
   

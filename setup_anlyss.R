@@ -7,6 +7,7 @@
 
 ### LOAD PACKAGES
 library(rsconnect)
+library(censusapi)
 library(fpp2)
 library(scales)
 library(shiny)
@@ -28,6 +29,7 @@ Ms <- function(x){
   number_format(accuracy = 0.01, suffix = " M")(x) 
 }
 
+api.key.census <- 'bc4fef59f0cef5d4de7b8e9c7b55218eaae523fc'
 
 ###  CAPTURE AND TRANSFORM DATA  ####
 # data.world :: covid-19 US :: john hopkins data
@@ -63,9 +65,28 @@ colnames(other) <- c("state", "year", "weeknum", "wedate", "all_causes", "natura
                      "fl_cov19mult", "fl_cov19undly")
 setDT(other)
 
+# CENSUS data :: population
+state.pop <- getCensus(name = "pep/population", 
+                      vintage = 2019, 
+                      key = api.key.census, 
+                      vars = c("NAME", "POP"),  
+                      region = "state:*")
+setDT(state.pop)
+setorder(state.pop, state)
+
+county.pop <- getCensus(name = "pep/population", 
+                       vintage = 2019, 
+                       key = api.key.census, 
+                       vars = c("NAME", "POP", "GEO_ID"),  
+                       region = "county:*")
+
+
+
+
 ###  SET SOME VARIABLES  ####
 map_w <- map_data("world")
-map_us <- map_data("states")
+map_us <- map_data("state")
+map_us$region <- str_to_title(map_us$region)
 
 ### READ OTHER DATASETS  ####
 pred.stl <- fread(file = "predstl.csv")
@@ -151,7 +172,7 @@ us.data[ , date := as_date(date)]
 setcolorder(us.data, c(4,10,11,9,3,2,8,5,6,12,7,1,13))
 
 # aggregate to the US level
-us.data <- us.data[iso2 == "US"]
+us.data <- us.data[country == "USA"]
 us.data <- us.data[ , .(new_cases = sum(new_cases), new_deaths = sum(new_deaths), 
                               cum_cases = sum(cum_cases), cum_deaths = sum(cum_deaths))
                           , by = .(date, state)]
@@ -159,10 +180,12 @@ setorder(us.data, state, date)
 
 ##  Create Metrics and Aggregates
 # add population (in Millions)
-us.data <- us.data[p2020, on = .(country = country)]
+us.data <- us.data[state.pop, on = .(state = NAME)]
+us.data[ , i.state := NULL]
+setnames(us.data, 'POP', 'pop')
 us.data <- us.data[!is.na(date)]
 # 100,000s of population
-us.data[ , hundredk_pop := (pop * 10)]
+us.data[ , hundredk_pop := (pop / 100000)]
 
 
 ###  ANALYSIS :: WORLD    ####
@@ -171,16 +194,16 @@ us.data[ , ccper100k := cum_cases/hundredk_pop]
 us.data[ , cdper100k := cum_deaths/hundredk_pop]
 
 # last week's cumulative
-us.data[ , cc100k_lswk := shift(ccper100k, 7), by = country]
-us.data[ , cd100k_lswk := shift(cdper100k, 7), by = country]
+us.data[ , cc100k_lswk := shift(ccper100k, 7), by = state]
+us.data[ , cd100k_lswk := shift(cdper100k, 7), by = state]
 
 # percent change (cumulative) from last week
 us.data[ , cc_pctchg := (ccper100k-cc100k_lswk)/cc100k_lswk]
 us.data[ , cd_pctchg := (cdper100k-cd100k_lswk)/cd100k_lswk]
-setnafill(us.data, fill = 0, cols = 12:15)
+setnafill(us.data, fill = 0, cols = 11:14)
 
 ##  TODAY'S DATA  ####
-us.today <- us.data[date == (max(date) - 1)]
+us.today <- us.data[date == max(date)]
 
 
 
