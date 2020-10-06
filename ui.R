@@ -71,7 +71,7 @@ fluidPage(
                  
                  
                 ) # mainpanel
-             ), # sidebarlayout
+             ) # sidebarlayout
     ) #tabpanel
     
   ),  # navbarmenu
@@ -138,7 +138,7 @@ fluidPage(
                           
                           
                         ) # mainpanel
-                      ), # sidebarlayout
+                      ) # sidebarlayout
              ), #tabpanel where we are now
              "----", 
              tabPanel("US Trends", fluid = TRUE,
@@ -156,8 +156,8 @@ fluidPage(
                                             ), # sidebarpanel
                                             mainPanel(
                                               
-                                            ), 
-                                          ), #tabpanel us trends 
+                                            ) 
+                                          ) #tabpanel us trends 
              
   ),  # navbarmenu
   
@@ -191,8 +191,3 @@ fluidPage(
     
   ) # navbarpage
 ) #fluidpage
-
-  
-
-
-
