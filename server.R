@@ -372,8 +372,41 @@ output$plot_today_us_100k_pctchg <- renderPlot( {
   
   
 }, width = 850, height = 400 ) # output$plot_today_world
-
-
+# US trends
+output$plot_us_trend_overall <- renderPlot( {
+  
+  
+  if(input$us_type == 'cases') {
+    ggplot(us.today, aes(fill = cc_pctchg)) + 
+      geom_map(aes(map_id = state), map = map_us) + 
+      expand_limits(x = map_us$long, y = map_us$lat) + 
+      scale_fill_continuous(low = "lightblue", high = "blue3", 
+                            name = "Cumulative Cases", 
+                            label = scales::comma) + 
+      theme(axis.text = element_blank(),
+            axis.title = element_blank(),
+            axis.ticks = element_blank()) 
+  } else if(input$us_type == 'deaths') {
+    ggplot(us.today, aes(fill = cd_pctchg)) + 
+      geom_map(aes(map_id = state), map = map_us) + 
+      expand_limits(x = map_us$long, y = map_us$lat) + 
+      scale_fill_continuous(low = "lightpink", high = "orangered", 
+                            name = "Cumulative Deaths", 
+                            label = scales::comma) + 
+      theme(axis.text = element_blank(),
+            axis.title = element_blank(),
+            axis.ticks = element_blank())
+  } else {
+    ggplot(mtcars) + 
+      geom_point(aes(x = drat, y = wt)) + 
+      labs(x = "", y = "") + 
+      annotate("text", x = 3.75, y = 3.5, 
+               size = 16, color = "red",
+               label = "SOMETHING HAS GONE WRONG")
+  }
+  
+  
+}, width = 850, height = 400 ) # output$plot_today_world
 
 } # function
 

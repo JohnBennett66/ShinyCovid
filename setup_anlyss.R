@@ -205,8 +205,15 @@ setnafill(us.data, fill = 0, cols = 11:14)
 ##  TODAY'S DATA  ####
 us.today <- us.data[date == max(date)]
 
-
-
+##  US ALL UP FOR TRENDS ####
+us.allup <- us.data[, 
+                    lapply(.SD, sum), 
+                    by = .(date), 
+                    .SDcols=c("new_cases", "new_deaths", "cum_cases", "cum_deaths",    
+                              "pop", "hundredk_pop", "ccper100k", "cdper100k", 
+                              "cc100k_lswk", "cd100k_lswk", "cc_pctchg", "cd_pctchg")]
+us.allup[ , pop := p2020[country == "USA", pop]]
+us.allup[ , hundredk_pop := (pop * 10)]
 
 
 
