@@ -34,8 +34,33 @@ fluidPage(
 				(see the About tab) <br>
 			The menu structure should be self explanatory. <br>
 			I hope you find this useful. <br>
-			 - John Bennett <br><br><br>
-			<strong>NOTE: </strong>This is 'Version 2', in case it looks different from the last time you visited.")
+			 - John Bennett <br>"),
+			hr(),
+			h4("Current Stats"),
+			HTML("<em>Data current as of :  </em>"), strong(HTML(display.date)),
+			h5("Worldwide", .noWS = 'after-begin'),
+			HTML("Cumulative Cases ::  "), strong(HTML(comma(world.cases))), 
+			HTML(" &nbsp;&nbsp;==>>&nbsp;&nbsp; Weekly Increase ::  "), 
+			strong(HTML(percent(world.cases.increase, accuracy = 0.01))), br(), 
+			HTML("Cumulative Deaths ::  "), strong(HTML(comma(world.deaths))), 
+			HTML(" &nbsp;&nbsp;==>>&nbsp;&nbsp; Weekly Increase ::  "), 
+			  strong(HTML(percent(world.deaths.increase, accuracy = 0.01))), br(), 
+			fluidRow(
+			  column(3 ,
+			          HTML("New Cases Daily Trend :: "),
+			          plotOutput('world_growth_cases_daily')
+			  ),
+			  column(3 ,
+			         HTML("New Deaths Daily Trend :: "),
+			         plotOutput('world_growth_deaths_daily') 
+			  )
+		  ),
+			plotOutput('world_trend_daily')
+			hr(),
+			HTML("<br>
+			<strong>NOTE: </strong>This is 'Version 2', in case it looks different 
+			     from the last time you visited."
+			)
 		), #tabpanel welcome
 		navbarMenu("The World", 
 			tabPanel("Where Are We", fluid = TRUE,
@@ -131,7 +156,7 @@ fluidPage(
 					) # mainpanel
 				) # sidebarlayout
 			), #tabpanel where we are now
-			# "----", 
+			 "----", 
 			tabPanel("US Trends", fluid = TRUE,
 					 h3("The States ranked:"),
 					 sidebarLayout(
@@ -143,13 +168,13 @@ fluidPage(
 						 ), # sidebarpanel
 						 mainPanel(
 						   h4("Overall Trend for the US :: Since 21 January 2020"),
-						   plotOutput('plot_us_trend_overall'), 
-						   htmlOutput()
-							 
-						 ) 
+						   plotOutput('plot_us_trend_overall'),
+						   # htmlOutput()
+
+						 )
 					 )
-			) #tabpanel us trends 
-	
+			) #tabpanel us trends
+
 		),  # navbarmenu
              
     tabPanel("About", fluid = TRUE,

@@ -88,6 +88,7 @@ map_w <- map_data("world")
 map_us <- map_data("state")
 map_us$region <- str_to_title(map_us$region)
 
+
 ### READ OTHER DATASETS  ####
 pred.stl <- fread(file = "predstl.csv")
 pred.stl[,date := as_date(date)]
@@ -156,7 +157,7 @@ world.data[ , cd_pctchg := (cdper100k-cd100k_lswk)/cd100k_lswk]
 setnafill(world.data, fill = 0, cols = 12:15)
 
 ##  TODAY'S DATA  ####
-world.today <- world.data[date == (max(date) - 1)]
+world.today <- world.data[date == reporting.date]
 
 
 
@@ -203,7 +204,7 @@ us.data[ , cd_pctchg := (cdper100k-cd100k_lswk)/cd100k_lswk]
 setnafill(us.data, fill = 0, cols = 11:14)
 
 ##  TODAY'S DATA  ####
-us.today <- us.data[date == max(date)]
+us.today <- us.data[date == reporting.date]
 
 ##  US ALL UP FOR TRENDS ####
 us.allup <- us.data[, 
@@ -220,26 +221,25 @@ us.allup[ , hundredk_pop := (pop * 10)]
 
 
 
+###  FRONT PAGE QUICK UPDATE  ####
+# world table
+world.cases <- world.data[date == reporting.date , sum(cum_cases)]
+world.deaths <- world.data[date == reporting.date , sum(cum_deaths)]
+world.cases.lastweek <-  world.data[date == reporting.date - 7 , sum(cum_cases)]
+world.cases.increase <- ((world.cases - world.cases.lastweek) / 
+                           world.cases.lastweek) 
+world.deaths.lastweek <-  world.data[date == reporting.date - 7 , sum(cum_deaths)]
+world.deaths.increase <- ((world.deaths - world.deaths.lastweek) / 
+                           world.deaths.lastweek) 
+world.summary <- world.data[, 
+                            lapply(.SD, sum), 
+                            by = .(date), 
+                            .SDcols = c("new_cases", "new_deaths", 
+                                        "cum_cases", "cum_deaths", 
+                                        "pop", "hundredk_pop")]
+world.summary[ , cases_per_100k := new_cases / hundredk_pop]
+world.summary[ , deaths_per_100k := new_deaths / hundredk_pop]
+world.summary[ , cases_lastweek := shift(new_cases, 7), by = .(date)]
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+us.data[ , cc100k_lswk := shift(ccper100k, 7), by = state]
 

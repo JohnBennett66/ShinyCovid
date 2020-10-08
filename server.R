@@ -22,6 +22,13 @@ options(datatable.optimize=1)
 ###  SETUP :: IMPORT :: TRANSFORM  ####
 source('setup_anlyss.R')
 
+###  SET SOME VARIABLES  ####
+reporting.date <- df.tb[country == "USA"][date == max(date)][, unique(date)]
+report.date <- as.character(reporting.date)
+display.date <- paste(day(reporting.date), 
+                      month(reporting.date, label = TRUE, abbr = FALSE),
+                      year(reporting.date),
+                      sep = " ")
 
 ###  MAIN FUNCTION  ####
 function(input, output) {
@@ -198,6 +205,30 @@ output$plot_today_world_100k_pctchg <- renderPlot( {
   }
   
 }, width = 850, height = 400 ) # output$plot_today_world
+
+## OVERVIEW VISUALS ##
+## WORLD TRENDS
+# cum cases daily
+output$world_growth_cases_daily <- renderPlot( { 
+  ggplot(data = world.summary[date <= reporting.date]) + 
+    geom_line(aes(x = date, y = new_cases), colour = 'blue') + 
+    labs(y = "Daily Cases", x = "") + 
+    scale_y_continuous(label = comma)
+}, width = 400, height = 200 )
+output$world_growth_deaths_daily <- renderPlot( { 
+  ggplot(data = world.summary[date <= reporting.date]) + 
+    geom_line(aes(x = date, y = new_deaths), color = 'red') + 
+    labs(y = "Daily Deaths", x = "") + 
+    scale_y_continuous(label = comma)
+}, width = 400, height = 200 )
+output$world_trend_daily <- renderPlot( { 
+  ggplot(data = world.summary[date <= reporting.date]) + 
+    geom_line(aes(x = date, y = cases_per_100k), size = 1, colour = 'blue') + 
+    geom_line(aes(x = date, y = deaths_per_100k * 40), size = 0, color = 'red') +
+    labs(x = "Cases & Deaths per 100,000 population", y = "Index", 
+         caption = "Cases = Blue, Deaths = Red") 
+}, width = 400, height = 200 )
+
 
 
 
@@ -376,7 +407,7 @@ output$plot_today_us_100k_pctchg <- renderPlot( {
 output$plot_us_trend_overall <- renderPlot( {
   
   
-  if(input$us_type == 'cases') {
+  # if(input$us_type == 'cases') {
     ggplot(us.today, aes(fill = cc_pctchg)) + 
       geom_map(aes(map_id = state), map = map_us) + 
       expand_limits(x = map_us$long, y = map_us$lat) + 
@@ -386,24 +417,24 @@ output$plot_us_trend_overall <- renderPlot( {
       theme(axis.text = element_blank(),
             axis.title = element_blank(),
             axis.ticks = element_blank()) 
-  } else if(input$us_type == 'deaths') {
-    ggplot(us.today, aes(fill = cd_pctchg)) + 
-      geom_map(aes(map_id = state), map = map_us) + 
-      expand_limits(x = map_us$long, y = map_us$lat) + 
-      scale_fill_continuous(low = "lightpink", high = "orangered", 
-                            name = "Cumulative Deaths", 
-                            label = scales::comma) + 
-      theme(axis.text = element_blank(),
-            axis.title = element_blank(),
-            axis.ticks = element_blank())
-  } else {
-    ggplot(mtcars) + 
-      geom_point(aes(x = drat, y = wt)) + 
-      labs(x = "", y = "") + 
-      annotate("text", x = 3.75, y = 3.5, 
-               size = 16, color = "red",
-               label = "SOMETHING HAS GONE WRONG")
-  }
+  # } else if(input$us_type == 'deaths') {
+  #   ggplot(us.today, aes(fill = cd_pctchg)) + 
+  #     geom_map(aes(map_id = state), map = map_us) + 
+  #     expand_limits(x = map_us$long, y = map_us$lat) + 
+  #     scale_fill_continuous(low = "lightpink", high = "orangered", 
+  #                           name = "Cumulative Deaths", 
+  #                           label = scales::comma) + 
+  #     theme(axis.text = element_blank(),
+  #           axis.title = element_blank(),
+  #           axis.ticks = element_blank())
+  # } else {
+  #   ggplot(mtcars) + 
+  #     geom_point(aes(x = drat, y = wt)) + 
+  #     labs(x = "", y = "") + 
+  #     annotate("text", x = 3.75, y = 3.5, 
+  #              size = 16, color = "red",
+  #              label = "SOMETHING HAS GONE WRONG")
+  # }
   
   
 }, width = 850, height = 400 ) # output$plot_today_world
