@@ -175,7 +175,7 @@ fluidPage(title = "Worldwide COVID-19 Data Tracking App",
 			), #tabpanel where we are now
 			 "----", 
 			tabPanel("US Rankings", fluid = TRUE, 
-			         shinythemes::themeSelector(),
+			         # shinythemes::themeSelector(),
 			  sidebarLayout(
 			    sidebarPanel(
 			      selectInput('us_rank', 
