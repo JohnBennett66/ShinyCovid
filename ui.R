@@ -25,10 +25,10 @@ popsicle <- c("a big bunch of text explaning a thing or two about something or a
 # icon("globe", class = NULL, lib = "font-awesome")
 
 ###  PAGE LAYOUT :: MAIN & SIDEBAR :: SINGLE PLOT  ####
-fluidPage(
-  navbarPage("COVID-19 DATA TRACKING", theme = shinytheme("simplex"), 
+fluidPage(title = "Worldwide COVID-19 Data Tracking App", 
+  navbarPage("COVID-19 DATA TRACKING", theme = shinytheme("sandstone"), 
 		tabPanel("", fluid = TRUE,
-			h1("Welcome to My COVID-19 Tracker", .noWS = 'before'),
+			h2("Welcome to My COVID-19 Tracker", .noWS = 'before'),
 			HTML("This app provides some analysis of the Covid-19 data worldwide. <br>
 			The analysis comes from a USA-centric perspective, but feel free to make suggestions. 
 				(see the About tab) <br>
@@ -38,27 +38,44 @@ fluidPage(
 			hr(),
 			h4("Current Stats"),
 			HTML("<em>Data current as of :  </em>"), strong(HTML(display.date)),
-			h5("Worldwide", .noWS = 'after-begin'),
+			HTML("<h5><strong>Worldwide</strong></h5>"),
 			HTML("Cumulative Cases ::  "), strong(HTML(comma(world.cases))), 
 			HTML(" &nbsp;&nbsp;==>>&nbsp;&nbsp; Weekly Increase ::  "), 
 			strong(HTML(percent(world.cases.increase, accuracy = 0.01))), br(), 
 			HTML("Cumulative Deaths ::  "), strong(HTML(comma(world.deaths))), 
 			HTML(" &nbsp;&nbsp;==>>&nbsp;&nbsp; Weekly Increase ::  "), 
 			  strong(HTML(percent(world.deaths.increase, accuracy = 0.01))), br(), 
-			fluidRow(
-			  column(3 ,
+			div(class = "row", style = "height: 210px",
+			  div(class = "col-sm-3", style = "height: 210px",
 			          HTML("New Cases Daily Trend :: "),
 			          plotOutput('world_growth_cases_daily')
 			  ),
-			  column(3 ,
+			  div(class = "col-sm-9", style = "height: 210px",
 			         HTML("New Deaths Daily Trend :: "),
 			         plotOutput('world_growth_deaths_daily') 
 			  )
-		  ),
-			plotOutput('world_trend_daily')
+		  ), 
+			div(class = "row", style = "width: 500px", style = "height: 50px",
+			    HTML("<h5><strong>United States</strong></h5>"),
+			    HTML("Cumulative Cases ::  "), strong(HTML(comma(us.cases))), 
+    			HTML(" &nbsp;&nbsp;==>>&nbsp;&nbsp; Weekly Increase ::  "), 
+    			strong(HTML(percent(us.cases.increase, accuracy = 0.01))), br(), 
+    			HTML("Cumulative Deaths ::  "), strong(HTML(comma(us.deaths))), 
+    			HTML(" &nbsp;&nbsp;==>>&nbsp;&nbsp; Weekly Increase ::  "), 
+    			strong(HTML(percent(us.deaths.increase, accuracy = 0.01))), 
+			),br(), 
+			div(class = "row", style = "height: 210px",
+			  div(class = "col-sm-3", style = "height: 210px",
+			         HTML("New Cases Daily Trend :: "),
+			         plotOutput('us_growth_cases_daily')
+			  ),
+			  div(class = "col-sm-9" , style = "height: 210px",
+			         HTML("New Deaths Daily Trend :: "),
+			         plotOutput('us_growth_deaths_daily') 
+			  )
+			),
 			hr(),
-			HTML("<br>
-			<strong>NOTE: </strong>This is 'Version 2', in case it looks different 
+			HTML("<strong>NOTE: </strong>This is 'Version 2', in case it looks different 
 			     from the last time you visited."
 			)
 		), #tabpanel welcome
@@ -157,6 +174,30 @@ fluidPage(
 				) # sidebarlayout
 			), #tabpanel where we are now
 			 "----", 
+			tabPanel("US Rankings", fluid = TRUE, 
+			         shinythemes::themeSelector(),
+			  sidebarLayout(
+			    sidebarPanel(
+			      selectInput('us_rank', 
+			                        p("Select Sort Order", style="font-size:13px"),
+			                        c("Cases/100k" = "ccper100k", "Deaths/100k" = "cdper100k", 
+			                          "Cases Change" = "cc_pctchg", "Deaths Change" = "cd_pctchg")
+			      ), width = 2
+			    ), #sidebar
+			    mainPanel(
+			      fluidRow(
+			        column(5, 
+			               tableOutput('us_ranking') 
+			        ), 
+			        column(5, 
+			               plotOutput('plot_today_us_rank')
+			        )
+			      ) 
+			    ), #main
+			  ), #layout
+			), # tab-"us rankings"
+			        
+			        
 			tabPanel("US Trends", fluid = TRUE,
 					 h3("The States ranked:"),
 					 sidebarLayout(

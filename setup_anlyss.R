@@ -216,13 +216,19 @@ us.allup <- us.data[,
 us.allup[ , pop := p2020[country == "USA", pop]]
 us.allup[ , hundredk_pop := (pop * 10)]
 
-
-
+##  US TABLE :: TODAY  ####
+us.table <- us.today[ , .(state, ccper100k, cdper100k, cc_pctchg, cd_pctchg)]
+us.table[ , "Cases/100k" := comma(ccper100k, accuracy = 1)] 
+us.table[ , "Deaths/100k" := comma(cdper100k, accuracy = 1)] 
+us.table[ , "Cases Change" := percent(cc_pctchg, accuracy = 0.1)] 
+us.table[ , "Deaths Change" := percent(cd_pctchg, accuracy = 0.1)]
+setnames(us.table, 1, "State")
+setorder(us.table, -ccper100k)
 
 
 
 ###  FRONT PAGE QUICK UPDATE  ####
-# world table
+# world numbers
 world.cases <- world.data[date == reporting.date , sum(cum_cases)]
 world.deaths <- world.data[date == reporting.date , sum(cum_deaths)]
 world.cases.lastweek <-  world.data[date == reporting.date - 7 , sum(cum_cases)]
@@ -241,5 +247,13 @@ world.summary[ , cases_per_100k := new_cases / hundredk_pop]
 world.summary[ , deaths_per_100k := new_deaths / hundredk_pop]
 world.summary[ , cases_lastweek := shift(new_cases, 7), by = .(date)]
 
-us.data[ , cc100k_lswk := shift(ccper100k, 7), by = state]
+# us numbers
+us.cases <- us.allup[date == reporting.date, cum_cases]
+us.deaths <- us.allup[date == reporting.date, cum_deaths]
+us.cases.lastweek <- us.allup[date == reporting.date - 7, cum_cases]
+us.cases.increase <- ((us.cases - us.cases.lastweek) / 
+                        us.cases.lastweek)
+us.deaths.lastweek <- us.allup[date == reporting.date - 7, cum_deaths]
+us.deaths.increase <- ((us.deaths - us.deaths.lastweek) / 
+                         us.deaths.lastweek)
 

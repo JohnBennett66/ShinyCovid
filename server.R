@@ -206,8 +206,8 @@ output$plot_today_world_100k_pctchg <- renderPlot( {
   
 }, width = 850, height = 400 ) # output$plot_today_world
 
-## OVERVIEW VISUALS ##
-## WORLD TRENDS
+## WORLD OVERVIEW VISUALS ##
+## TRENDS
 # cum cases daily
 output$world_growth_cases_daily <- renderPlot( { 
   ggplot(data = world.summary[date <= reporting.date]) + 
@@ -301,6 +301,56 @@ output$text_today_world_100k_pctchg <- renderUI( {
 
 
 ##  THE VISUALS
+# ranking table
+output$us_ranking <- renderTable( { 
+  if(input$us_rank == 'ccper100k')  { 
+    setorder(us.table, -ccper100k)
+    us.table[ , .(State, `Cases/100k`, `Deaths/100k`, 
+                  `Cases Change`, `Deaths Change`)]
+  } else if(input$us_rank == 'cdper100k')  { 
+    setorder(us.table, -cdper100k)
+    us.table[ , .(State, `Cases/100k`, `Deaths/100k`, 
+                  `Cases Change`, `Deaths Change`)]
+  } else if(input$us_rank == 'cc_pctchg')  { 
+    setorder(us.table, -cc_pctchg)
+    us.table[ , .(State, `Cases Change`, `Deaths Change`, 
+                  `Cases/100k`, `Deaths/100k`)]
+  } else if(input$us_rank == 'cd_pctchg')  { 
+    setorder(us.table, -cd_pctchg)
+    us.table[ , .(State, `Deaths Change`, `Cases Change`, 
+                  `Deaths/100k`, `Cases/100k`)]
+  }
+} , striped = TRUE, bordered = TRUE, rownames = TRUE
+)
+# ranking plot
+plot.back <- rgb(248, 245, 240, maxColorValue = 255)
+plot.border <- rgb(223, 215, 202, maxColorValue = 255)
+output$plot_today_us_rank <- renderPlot( { 
+  if(input$us_rank == 'ccper100k')  { 
+    ggplot(us.table, aes(fill = ccper100k)) + 
+      geom_map(aes(map_id = State), map = map_us) + 
+      expand_limits(x = map_us$long, y = map_us$lat) + 
+      scale_fill_continuous(low = "lightblue", high = "blue3", 
+                            name = "Cases per 100,000 Population", 
+                            label = scales::comma) + 
+      theme(axis.text = element_blank(),
+            axis.title = element_blank(),
+            axis.ticks = element_blank(), 
+            legend.position = 'bottom', 
+            plot.background = element_rect(colour = plot.border, fill = plot.back), 
+            panel.background = element_rect(colour = plot.back, fill = plot.back), 
+            legend.background = element_rect(fill = plot.back)
+            )  
+  } else if(input$us_rank == 'cdper100k')  { 
+    
+  } else if(input$us_rank == 'cc_pctchg')  { 
+    
+  } else if(input$us_rank == 'cd_pctchg')  { 
+    
+  }
+  
+}, width = 410, height = 270  
+)
 # stats rank cumulative
 output$plot_today_us <- renderPlot( {
   
@@ -438,6 +488,34 @@ output$plot_us_trend_overall <- renderPlot( {
   
   
 }, width = 850, height = 400 ) # output$plot_today_world
+
+## US OVERVIEW VISUALS ##
+## TRENDS
+# cum cases daily
+output$us_growth_cases_daily <- renderPlot( { 
+  ggplot(data = us.allup[date <= reporting.date]) + 
+    geom_line(aes(x = date, y = new_cases), colour = 'blue') + 
+    labs(y = "Daily Cases", x = "") + 
+    scale_y_continuous(label = comma)
+}, width = 400, height = 200 )
+# cum deaths daily
+output$us_growth_deaths_daily <- renderPlot( { 
+  ggplot(data = us.allup[date <= reporting.date]) + 
+    geom_line(aes(x = date, y = new_deaths), color = 'red') + 
+    labs(y = "Daily Deaths", x = "") + 
+    scale_y_continuous(label = comma)
+}, width = 400, height = 200 )
+# something else
+output$world_trend_daily <- renderPlot( { 
+  ggplot(data = world.summary[date <= reporting.date]) + 
+    geom_line(aes(x = date, y = cases_per_100k), size = 1, colour = 'blue') + 
+    geom_line(aes(x = date, y = deaths_per_100k * 40), size = 0, color = 'red') +
+    labs(x = "Cases & Deaths per 100,000 population", y = "Index", 
+         caption = "Cases = Blue, Deaths = Red") 
+}, width = 400, height = 200 )
+
+
+
 
 } # function
 
