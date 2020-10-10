@@ -305,20 +305,20 @@ output$text_today_world_100k_pctchg <- renderUI( {
 output$us_ranking <- renderTable( { 
   if(input$us_rank == 'ccper100k')  { 
     setorder(us.table, -ccper100k)
-    us.table[ , .(State, `Cases/100k`, `Deaths/100k`, 
+    us.table[ , .(State, `Cases /100k`, `Deaths /100k`, 
                   `Cases Change`, `Deaths Change`)]
   } else if(input$us_rank == 'cdper100k')  { 
     setorder(us.table, -cdper100k)
-    us.table[ , .(State, `Cases/100k`, `Deaths/100k`, 
+    us.table[ , .(State, `Cases /100k`, `Deaths /100k`, 
                   `Cases Change`, `Deaths Change`)]
   } else if(input$us_rank == 'cc_pctchg')  { 
     setorder(us.table, -cc_pctchg)
     us.table[ , .(State, `Cases Change`, `Deaths Change`, 
-                  `Cases/100k`, `Deaths/100k`)]
+                  `Cases /100k`, `Deaths /100k`)]
   } else if(input$us_rank == 'cd_pctchg')  { 
     setorder(us.table, -cd_pctchg)
     us.table[ , .(State, `Deaths Change`, `Cases Change`, 
-                  `Deaths/100k`, `Cases/100k`)]
+                  `Deaths /100k`, `Cases /100k`)]
   }
 } , striped = TRUE, bordered = TRUE, rownames = TRUE
 )
@@ -339,14 +339,57 @@ output$plot_today_us_rank <- renderPlot( {
             legend.position = 'bottom', 
             plot.background = element_rect(colour = plot.border, fill = plot.back), 
             panel.background = element_rect(colour = plot.back, fill = plot.back), 
-            legend.background = element_rect(fill = plot.back)
+            legend.background = element_rect(fill = plot.back),
+            panel.grid = element_line(color = plot.back)
             )  
   } else if(input$us_rank == 'cdper100k')  { 
-    
+    ggplot(us.table, aes(fill = cdper100k)) + 
+      geom_map(aes(map_id = State), map = map_us) + 
+      expand_limits(x = map_us$long, y = map_us$lat) + 
+      scale_fill_continuous(low = "white", high = "orangered", 
+                            name = "Deaths per 100,000 Population", 
+                            label = scales::comma) + 
+      theme(axis.text = element_blank(),
+            axis.title = element_blank(),
+            axis.ticks = element_blank(), 
+            legend.position = 'bottom', 
+            plot.background = element_rect(colour = plot.border, fill = plot.back), 
+            panel.background = element_rect(colour = plot.back, fill = plot.back), 
+            legend.background = element_rect(fill = plot.back),
+            panel.grid = element_line(color = plot.back)
+      ) 
   } else if(input$us_rank == 'cc_pctchg')  { 
-    
+    ggplot(us.table, aes(fill = cc_pctchg)) + 
+      geom_map(aes(map_id = State), map = map_us) + 
+      expand_limits(x = map_us$long, y = map_us$lat) + 
+      scale_fill_continuous(low = "lightblue", high = "blue3", 
+                            name = "Cases per 100,000 Population", 
+                            label = scales::comma) + 
+      theme(axis.text = element_blank(),
+            axis.title = element_blank(),
+            axis.ticks = element_blank(), 
+            legend.position = 'bottom', 
+            plot.background = element_rect(colour = plot.border, fill = plot.back), 
+            panel.background = element_rect(colour = plot.back, fill = plot.back), 
+            legend.background = element_rect(fill = plot.back),
+            panel.grid = element_line(color = plot.back)
+      ) 
   } else if(input$us_rank == 'cd_pctchg')  { 
-    
+    ggplot(us.table, aes(fill = cd_prtchg)) + 
+      geom_map(aes(map_id = State), map = map_us) + 
+      expand_limits(x = map_us$long, y = map_us$lat) + 
+      scale_fill_continuous(low = "pink", high = "orangered", 
+                            name = "Cases per 100,000 Population", 
+                            label = scales::comma) + 
+      theme(axis.text = element_blank(),
+            axis.title = element_blank(),
+            axis.ticks = element_blank(), 
+            legend.position = 'bottom', 
+            plot.background = element_rect(colour = plot.border, fill = plot.back), 
+            panel.background = element_rect(colour = plot.back, fill = plot.back), 
+            legend.background = element_rect(fill = plot.back),
+            panel.grid = element_line(color = plot.back)
+      ) 
   }
   
 }, width = 410, height = 270  

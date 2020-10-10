@@ -218,8 +218,8 @@ us.allup[ , hundredk_pop := (pop * 10)]
 
 ##  US TABLE :: TODAY  ####
 us.table <- us.today[ , .(state, ccper100k, cdper100k, cc_pctchg, cd_pctchg)]
-us.table[ , "Cases/100k" := comma(ccper100k, accuracy = 1)] 
-us.table[ , "Deaths/100k" := comma(cdper100k, accuracy = 1)] 
+us.table[ , "Cases /100k" := comma(ccper100k, accuracy = 1)] 
+us.table[ , "Deaths /100k" := comma(cdper100k, accuracy = 1)] 
 us.table[ , "Cases Change" := percent(cc_pctchg, accuracy = 0.1)] 
 us.table[ , "Deaths Change" := percent(cd_pctchg, accuracy = 0.1)]
 setnames(us.table, 1, "State")

@@ -1,6 +1,6 @@
 ### UI SCRIPT
 ### 
-# api key bc4fef59f0cef5d4de7b8e9c7b55218eaae523fc
+
 ### LOAD PACKAGES
 library(rsconnect)
 library(censusapi)
@@ -22,19 +22,45 @@ library(RSocrata)
 options(datatable.optimize=1)
 
 popsicle <- c("a big bunch of text explaning a thing or two about something or another.")
-# icon("globe", class = NULL, lib = "font-awesome")
+# icon("icon", class = NULL, lib = "font-awesome")
 
 ###  PAGE LAYOUT :: MAIN & SIDEBAR :: SINGLE PLOT  ####
 fluidPage(title = "Worldwide COVID-19 Data Tracking App", 
-  navbarPage("COVID-19 DATA TRACKING", theme = shinytheme("sandstone"), 
-		tabPanel("", fluid = TRUE,
-			h2("Welcome to My COVID-19 Tracker", .noWS = 'before'),
-			HTML("This app provides some analysis of the Covid-19 data worldwide. <br>
-			The analysis comes from a USA-centric perspective, but feel free to make suggestions. 
-				(see the About tab) <br>
-			The menu structure should be self explanatory. <br>
-			I hope you find this useful. <br>
-			 - John Bennett <br>"),
+          # themeSelector(),
+  navbarPage("COVID-19 DATA TRACKING", theme = shinytheme("yeti"), 
+		tabPanel(icon("home", class = NULL, lib = "font-awesome"), fluid = TRUE,
+      h2("Welcome to My COVID-19 Tracker", .noWS = 'before'),
+      fluidRow(
+		    column(6,
+    			HTML("This app provides some analysis of the Covid-19 data worldwide. <br>
+    			The analysis comes from a USA-centric perspective, but feel free to make suggestions. 
+    				(see the About tab) <br>
+    			The menu structure should be self explanatory. <br>
+    			I hope you find this useful. <br>
+    			 - John Bennett <br>"),
+		    ), # column one
+			  column(6, 
+			    p(HTML("&nbsp;&nbsp;MENU LEGEND"), style="background-color:rgb(51,51,51); color:white", 
+			      .noWS = 'after'),  
+			    HTML("&nbsp;&nbsp;"), icon("home"), HTML(":&nbsp;&nbsp;The Home Page (this page)"), br(),
+			    HTML("&nbsp;&nbsp;"), icon("graduation-cap"), 
+			        HTML(":&nbsp;&nbsp;The Learning Page (learn about the data and why we 
+			             choose certain metrics<sup>*</sup>)"), br(),
+			    HTML("&nbsp;&nbsp;"), icon("globe"), HTML(":&nbsp;&nbsp;The World Page 
+			                        (Worldwide data; overview, ranking, trends, comparisons)"), br(),
+			    HTML("&nbsp;&nbsp;"), icon("flag-usa"), HTML(":&nbsp;&nbsp;The United States Page 
+			                           (United States data; overview, rankings, trends, compaisons)"), br(),
+			    HTML("&nbsp;&nbsp;"), icon("disease"), 
+			        HTML(":&nbsp;&nbsp;The Other Diseases Page (all diseases data; overview, 
+			             rankings, trends, compaisons<sup>&dagger;</sup>)"), br(),
+			    HTML("&nbsp;&nbsp;<strong>About:</strong>&nbsp;&nbsp;The About Page 
+			         (about the data and the author, including links)"), br(),
+			    HTML("&nbsp;&nbsp;&nbsp;&nbsp;<sup>*</sup> <u>metrics</u>::data is something like 'the 
+			         # of covid cases' and <u>metrics</u> are like 'the # of covid cases 
+			         <i>per</i> 100,000 people'"), br(),
+			    HTML("&nbsp;&nbsp;&nbsp;&nbsp;<sup>&dagger;</sup> currently only the US"), br(),
+			  ) # column two
+		  ), # fluid row
 			hr(),
 			h4("Current Stats"),
 			HTML("<em>Data current as of :  </em>"), strong(HTML(display.date)),
@@ -79,15 +105,16 @@ fluidPage(title = "Worldwide COVID-19 Data Tracking App",
 			     from the last time you visited."
 			)
 		), #tabpanel welcome
-		navbarMenu("The World", 
-			tabPanel("Where Are We", fluid = TRUE,
-				h3("The world ranked:"),
+		navbarMenu(icon("graduation-cap", class = NULL, lib = "font-awesome"), 
+			tabPanel("Learn About The Data", fluid = TRUE,
+				h3("How Should We Count COVID-19:"),
 				sidebarLayout(
-					sidebarPanel(
-						# shinythemes::themeSelector(),
-						selectInput('world_type', p("Which Data? Cases or Deaths", style="font-size:13px"),
-												 c("Daily Cases" = "cases", "Daily Deaths" = "deaths")),
-						width = 2
+  				sidebarPanel(
+					  # shinythemes::themeSelector(),
+					  selectInput('world_type', 
+					              HTML("Which Data Should We Use? <p>Cases or Deaths?</p>"),
+					              c("Cases" = "cases", "Deaths" = "deaths")),
+					  width = 2
 					), # sidebarpanel :: input dropdown :: which data
 					mainPanel(
 						h4("Cumulative Cases"),
@@ -109,8 +136,10 @@ fluidPage(title = "Worldwide COVID-19 Data Tracking App",
 					) # mainpanel :: cases/deaths 
 				) # sidebarlayout
 			) #tabpanel :: where are we
-		),  # navbarmenu :: the world
-		navbarMenu("The United States", 
+		),  # navbarmenu :: education
+		navbarMenu(icon("globe", class = NULL, lib = "font-awesome")
+		), # navbarmenu :: the world
+		navbarMenu(icon("flag-usa", class = NULL, lib = "font-awesome"), 
 			tabPanel("Where Are We", fluid = TRUE,
 				h3("The States ranked:"),
 				sidebarLayout(
