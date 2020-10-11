@@ -26,7 +26,7 @@ library(RSocrata)
 options(datatable.optimize=1)
 
 Ms <- function(x){ 
-  number_format(accuracy = 0.01, suffix = " M")(x) 
+  comma(accuracy = 0.01, suffix = " M")(x) 
 }
 
 api.key.census <- 'bc4fef59f0cef5d4de7b8e9c7b55218eaae523fc'
