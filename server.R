@@ -289,7 +289,9 @@ output$text_overview_us_100k <- renderUI( {
            <li>unaware of the problem/risk</li>
            </ul>
          We should expect the rate of cases to be fairly constant if an area has good
-         systems of control in place. There will always be some cases."
+         systems of control in place. There will always be some cases. <br>
+         <br>
+         * &ldqou;per capita&rdqou; means the same as &ldqou;per 100,000 people&rdqou;"
     )
   } else if(input$us_type == 'deaths') { 
       HTML("These are the number of deaths per 100,000 people in each state. 

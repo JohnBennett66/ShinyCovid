@@ -37,7 +37,10 @@ fluidPage(title = "Worldwide COVID-19 Data Tracking App",
     				(see the About tab) <br>
     			The menu structure should be self explanatory. <br>
     			I hope you find this useful. <br>
-    			 - John Bennett <br>"),
+    			 - John Bennett <br>
+    			 <br><br>
+    			 <h4><b>NOTE: </b>This is a new version and is not 100% finished. Sorry if anything 
+    			     does not work. Also, check back regularly to see new updates.</h4>"),
 		    ), # column one
 			  column(6, 
 			    p(HTML("&nbsp;&nbsp;MENU LEGEND"), style="background-color:rgb(51,51,51); color:white", 
@@ -158,9 +161,10 @@ fluidPage(title = "Worldwide COVID-19 Data Tracking App",
 		  tabPanel("stuff goes here", fluid = TRUE 
 		  ) # tab panel :: stuff goes here
 		), # navbarmenu :: the world
-		### ### ### ### ### ###
-		###  THE US MENU   ####
-		### ### ### ### ### ###
+
+### ### ### ### ### ###
+###  THE US MENU   ####
+### ### ### ### ### ###
 		navbarMenu(icon("flag-usa", class = NULL, lib = "font-awesome"), 
 			tabPanel("Overview", fluid = TRUE,
 				h3("The United States Overview"),
@@ -185,15 +189,23 @@ fluidPage(title = "Worldwide COVID-19 Data Tracking App",
 						h4("Overview for the US Overall"),
 						fluidRow(style="height:350px", 
 						  column(5, style="height:350px", 
-						         div(class = "row", style = "width: 500px", style = "height: 50px",
-						             HTML("<h5><strong>United States</strong></h5>"),
-						             HTML("Cumulative Cases ::  "), strong(HTML(comma(us.cases))), 
-						             HTML(" &nbsp;&nbsp;==>>&nbsp;&nbsp; Weekly Increase ::  "), 
-						             strong(HTML(percent(us.cases.increase, accuracy = 0.01))), br(), 
-						             HTML("Cumulative Deaths ::  "), strong(HTML(comma(us.deaths))), 
-						             HTML(" &nbsp;&nbsp;==>>&nbsp;&nbsp; Weekly Increase ::  "), 
-						             strong(HTML(percent(us.deaths.increase, accuracy = 0.01))), 
-						         ),br(), 
+				         div(class = "row", style = "width: 500px", style = "height: 50px",
+				             HTML("<h5><strong>United States</strong></h5>"),
+				             HTML("Cumulative Cases ::  "), strong(HTML(comma(us.cases))), 
+				             HTML(" &nbsp;&nbsp;==>>&nbsp;&nbsp; Weekly Increase ::  "), 
+				             strong(HTML(percent(us.cases.increase, accuracy = 0.01))), br(), 
+				             HTML("Cumulative Deaths ::  "), strong(HTML(comma(us.deaths))), 
+				             HTML(" &nbsp;&nbsp;==>>&nbsp;&nbsp; Weekly Increase ::  "), 
+				             strong(HTML(percent(us.deaths.increase, accuracy = 0.01))), br(),
+				             HTML("Cases per 100,000 People ::  "), 
+				             strong(HTML(comma(us.allup[date == reporting.date, ccper100k]))), 
+				             HTML(" &nbsp;&nbsp;==>>&nbsp;&nbsp; Weekly Increase ::  "), 
+				             strong(HTML(percent(us.allup[date == reporting.date, cc_pctchg]))), br(),
+				             HTML("Deaths per 100,000 People ::  "), 
+				             strong(HTML(comma(us.allup[date == reporting.date, cdper100k]))), 
+				             HTML(" &nbsp;&nbsp;==>>&nbsp;&nbsp; Weekly Increase ::  "), 
+				             strong(HTML(percent(us.allup[date == reporting.date, cd_pctchg])))
+				         ),br(), 
 						         
 						         
 						         ),

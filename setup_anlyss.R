@@ -207,14 +207,21 @@ setnafill(us.data, fill = 0, cols = 11:14)
 us.today <- us.data[date == reporting.date]
 
 ##  US ALL UP FOR TRENDS ####
-us.allup <- us.data[, 
-                    lapply(.SD, sum), 
-                    by = .(date), 
-                    .SDcols=c("new_cases", "new_deaths", "cum_cases", "cum_deaths",    
-                              "pop", "hundredk_pop", "ccper100k", "cdper100k", 
-                              "cc100k_lswk", "cd100k_lswk", "cc_pctchg", "cd_pctchg")]
+us.allup <- us.data[ , lapply(.SD, sum), by = .(date), 
+                     .SDcols=c("new_cases", "new_deaths", 
+                              "cum_cases", "cum_deaths")]
 us.allup[ , pop := p2020[country == "USA", pop]]
 us.allup[ , hundredk_pop := (pop * 10)]
+us.allup[ , ccper100k := cum_cases/hundredk_pop]
+us.allup[ , cdper100k := cum_deaths/hundredk_pop]
+us.allup[ , cc100k_lswk := shift(ccper100k, 7)]
+us.allup[ , cd100k_lswk := shift(cdper100k, 7)]
+setnafill(us.allup, fill = 0, cols = 10:11)
+us.allup[ , cc_pctchg := ((ccper100k - cc100k_lswk) / cc100k_lswk)]
+us.allup[ , cd_pctchg := ((cdper100k - cd100k_lswk) / cd100k_lswk)]
+setnafill(us.allup, fill = 0, cols = 12:13)
+
+
 
 ##  US TABLE :: TODAY  ####
 us.table <- us.today[ , .(state, ccper100k, cdper100k, cc_pctchg, cd_pctchg)]
@@ -256,4 +263,10 @@ us.cases.increase <- ((us.cases - us.cases.lastweek) /
 us.deaths.lastweek <- us.allup[date == reporting.date - 7, cum_deaths]
 us.deaths.increase <- ((us.deaths - us.deaths.lastweek) / 
                          us.deaths.lastweek)
+
+
+
+
+
+
 
