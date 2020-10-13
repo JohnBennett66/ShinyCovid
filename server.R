@@ -1,4 +1,4 @@
-### SERVER SCRIPT
+### SERVER SCRIPT  ####
 
 ### LOAD PACKAGES
 library(rsconnect)
@@ -57,8 +57,45 @@ output$current_data_date <- renderUI( {
 ############################################ ###
 
 ###  OVERVIEW  ####
-###  WORLD
-###  U.S.
+# in UI script
+
+###  MENU LEGEND #### 
+# in UI script
+
+###  WORLD  ####
+## TREND VISUALS  ####
+# home page :: world daily cases trend :: new_cases :: line chart
+output$world_growth_cases_daily <- renderPlot( { 
+  ggplot(data = world.summary[date <= reporting.date]) + 
+    geom_line(aes(x = date, y = new_cases), colour = cases.main) + 
+    labs(y = "Daily Cases", x = "") + 
+    scale_y_continuous(label = comma)
+}, width = 400, height = 200 )
+# home page :: world daily deaths trend :: new_deaths :: line chart
+output$world_growth_deaths_daily <- renderPlot( { 
+  ggplot(data = world.summary[date <= reporting.date]) + 
+    geom_line(aes(x = date, y = new_deaths), color = death.main) + 
+    labs(y = "Daily Deaths", x = "") + 
+    scale_y_continuous(label = comma)
+}, width = 400, height = 200 )
+
+###  U.S.  ####
+## TREND VISUALS  ####
+# home page :: us daily cases trend :: new_cases :: line chart
+output$us_growth_cases_daily <- renderPlot( { 
+  ggplot(data = us.allup[date <= reporting.date]) + 
+    geom_line(aes(x = date, y = new_cases), colour = cases.main) + 
+    labs(y = "Daily Cases", x = "") + 
+    scale_y_continuous(label = comma)
+}, width = 400, height = 200 )
+# home page :: us daily deaths trend :: new cases :: line chart
+output$us_growth_deaths_daily <- renderPlot( { 
+  ggplot(data = us.allup[date <= reporting.date]) + 
+    geom_line(aes(x = date, y = new_deaths), color = death.main) + 
+    labs(y = "Daily Deaths", x = "") + 
+    scale_y_continuous(label = comma)
+}, width = 400, height = 200 )
+
 
 
 ################ ###
@@ -70,30 +107,115 @@ output$current_data_date <- renderUI( {
 ###  LEARN ABOUT THE DATA  ####
 ########################### ###
 
-###  CASES
-
-###  DEATHS
-
-
-
-
-
-
-
-#########  
-###  THE WORLD  ####
-###  WHERE ARE WE
-
-
-
-
-
-
-
-
+##  MAP PLOT VISUALS  ####
+# learn about data :: world cumulative rankings :: cum_cases|deaths :: world map plot
+output$plot_today_world <- renderPlot( {
+  if(input$world_type == 'cases') {
+    ggplot(world.today, aes(fill = cum_cases)) + 
+      geom_map(aes(map_id = country), map = map_w) + 
+      expand_limits(x = map$long, y = map$lat) + 
+      scale_fill_continuous(low = cases.low, high = cases.main, 
+                            name = "Cumulative Cases", 
+                            label = label_number_si()) + 
+      theme(axis.text = element_blank(),
+            axis.title = element_blank(),
+            axis.ticks = element_blank(), 
+            legend.position = "bottom") 
+  } else if(input$world_type == 'deaths') {
+    ggplot(world.today, aes(fill = cum_deaths)) + 
+      geom_map(aes(map_id = country), map = map_w) + 
+      expand_limits(x = map$long, y = map$lat) + 
+      scale_fill_continuous(low = deaths.low, high = death.main, 
+                            name = "Cumulative Deaths", 
+                            label = label_number_si()) + 
+      theme(axis.text = element_blank(),
+            axis.title = element_blank(),
+            axis.ticks = element_blank(),            
+            legend.position = "bottom") 
+  } else {
+    ggplot(mtcars) + 
+      geom_point(aes(x = drat, y = wt)) + 
+      labs(x = "", y = "") + 
+      annotate("text", x = 3.75, y = 3.5, 
+               size = 16, color = "red",
+               label = "SOMETHING HAS GONE WRONG")
+  }
   
-##  THE TEXT
-# cumulative chart explanation
+}, width = 500, height = 325 ) # output$plot_today_world
+
+# learn about data :: world cumulative per 100k rankings :: ccper100k|cdper100k :: world map plot
+output$plot_today_world_100k <- renderPlot( {
+  if(input$world_type == 'cases') {
+    ggplot(world.today, aes(fill = ccper100k)) + 
+      geom_map(aes(map_id = country), map = map_w) + 
+      expand_limits(x = map$long, y = map$lat) + 
+      scale_fill_continuous(low = cases.low, high = cases.main, 
+                            name = "Cumulative Cases", 
+                            label = label_number_si()) + 
+      theme(axis.text = element_blank(),
+            axis.title = element_blank(),
+            axis.ticks = element_blank(),            
+            legend.position = "bottom") 
+  } else if(input$world_type == 'deaths') {
+    ggplot(world.today, aes(fill = cdper100k)) + 
+      geom_map(aes(map_id = country), map = map_w) + 
+      expand_limits(x = map$long, y = map$lat) + 
+      scale_fill_continuous(low = deaths.low, high = death.main, 
+                            name = "Cumulative Deaths", 
+                            label = label_number_si()) + 
+      theme(axis.text = element_blank(),
+            axis.title = element_blank(),
+            axis.ticks = element_blank(),            
+            legend.position = "bottom") 
+  } else {
+    ggplot(mtcars) + 
+      geom_point(aes(x = drat, y = wt)) + 
+      labs(x = "", y = "") + 
+      annotate("text", x = 3.75, y = 3.5, 
+               size = 16, color = "red",
+               label = "SOMETHING HAS GONE WRONG")
+  }
+  
+}, width = 500, height = 325 ) # output$plot_today_world
+
+# learn about data :: world per 100k percent change rankings :: cc_pctchg|cd_pctchg :: world map plot
+output$plot_today_world_100k_pctchg <- renderPlot( {
+  if(input$world_type == 'cases') {
+    ggplot(world.today, aes(fill = cc_pctchg)) + 
+      geom_map(aes(map_id = country), map = map_w) + 
+      expand_limits(x = map_w$long, y = map_w$lat) + 
+      scale_fill_continuous(low = cases.low, high = cases.main, 
+                            name = "Cumulative Cases", 
+                            label = label_percent()) + 
+      theme(axis.text = element_blank(),
+            axis.title = element_blank(),
+            axis.ticks = element_blank(),            
+            legend.position = "bottom") 
+  } else if(input$world_type == 'deaths') {
+    ggplot(world.today, aes(fill = cd_pctchg)) + 
+      geom_map(aes(map_id = country), map = map_w) + 
+      expand_limits(x = map$long, y = map$lat) + 
+      scale_fill_continuous(low = deaths.low, high = death.main, 
+                            name = "Cumulative Deaths", 
+                            label = label_percent()) + 
+      theme(axis.text = element_blank(),
+            axis.title = element_blank(),
+            axis.ticks = element_blank(),            
+            legend.position = "bottom") 
+  } else {
+    ggplot(mtcars) + 
+      geom_point(aes(x = drat, y = wt)) + 
+      labs(x = "", y = "") + 
+      annotate("text", x = 3.75, y = 3.5, 
+               size = 16, color = "red",
+               label = "SOMETHING HAS GONE WRONG")
+  }
+  
+}, width = 500, height = 325 ) # output$plot_today_world
+
+
+##  TEXT COMPARISONS  ####
+# learn about data :: cumulative companion text 
 output$text_today_world <- renderUI( {
   if(input$world_type == 'cases') {
   HTML("This chart can be misleading because it treats each country the same. 
@@ -118,9 +240,7 @@ output$text_today_world <- renderUI( {
   }
 } ) # world cum text
 
-  
-
-
+# learn about data :: per 100k companion text 
 output$text_today_world_100k <- renderUI( {
   if(input$world_type == 'cases') {
     HTML("Now we are looking at the rate of cases or the rate of deaths, 
@@ -139,6 +259,7 @@ output$text_today_world_100k <- renderUI( {
   }
 } ) # world cum per captia text
 
+# learn about data :: percent change companion text 
 output$text_today_world_100k_pctchg <- renderUI( {
   if(input$world_type == 'cases') {
     HTML("In this chart we are looking at the percentage of change between a countries 
@@ -158,140 +279,59 @@ output$text_today_world_100k_pctchg <- renderUI( {
 } ) # world cum percent change text
 
   
-##  THE VISUALS
-# world rank cumulative
-output$plot_today_world <- renderPlot( {
-  
-  
-  if(input$world_type == 'cases') {
-    ggplot(world.today, aes(fill = cum_cases)) + 
-    geom_map(aes(map_id = country), map = map_w) + 
-    expand_limits(x = map$long, y = map$lat) + 
-    scale_fill_continuous(low = cases.low, high = cases.main, 
-                          name = "Cumulative Cases", 
-                          label = label_number_si()) + 
-    theme(axis.text = element_blank(),
-          axis.title = element_blank(),
-          axis.ticks = element_blank(), 
-          legend.position = "bottom") 
-  } else if(input$world_type == 'deaths') {
-    ggplot(world.today, aes(fill = cum_deaths)) + 
-      geom_map(aes(map_id = country), map = map_w) + 
-      expand_limits(x = map$long, y = map$lat) + 
-      scale_fill_continuous(low = deaths.low, high = death.main, 
-                            name = "Cumulative Deaths", 
-                            label = label_number_si()) + 
-      theme(axis.text = element_blank(),
-            axis.title = element_blank(),
-            axis.ticks = element_blank(),            
-            legend.position = "bottom") 
-  } else {
-    ggplot(mtcars) + 
-      geom_point(aes(x = drat, y = wt)) + 
-      labs(x = "", y = "") + 
-      annotate("text", x = 3.75, y = 3.5, 
-               size = 16, color = "red",
-               label = "SOMETHING HAS GONE WRONG")
-  }
-    
-}, width = 500, height = 325 ) # output$plot_today_world
 
-# world rank cumulative 100K  
-output$plot_today_world_100k <- renderPlot( {
+
+
+
+
+###  LEAVE OFF  ####
+##  THE VISUALS
+##  
+
+# single country trend chart with stats
+
+output$world_country_trend_stats <- renderPlot( { 
   
+  ggplot(world.data[country == "Sweden"]) + 
+    geom_line(aes(x = date, y = new_cases), colour = 'blue') + 
+    geom_label(x = world.data[country == "Sweden",unique(min(date))] + 35, 
+              y = world.data[country == "Sweden", max(new_cases)] - 150, 
+              label = paste("Sweden :: Statistik",
+                paste0("Kumulative Fall/100.000 människor :: ", comma(world.data[country == "Sweden" & date == max(date), ccper100k])), 
+                paste0("Kumulative Dödsfall/100.000 människor :: ", comma(world.data[country == "Sweden" & date == max(date), cdper100k])), 
+                paste0("Fall Procentuell Förändring (veckovis) :: ", percent(world.data[country == "Sweden" & date == max(date), cc_pctchg])), 
+                paste0("Dödsfall Procentuell Förändring (veckovis) :: ", percent(world.data[country == "Sweden" & date == max(date), cd_pctchg])), 
+                sep = "\n"
+              ), 
+              color = 'black', size = 4) + 
+    geom_label(x = world.data[country == "Sweden",unique(max(date))] - 35, 
+               y = world.data[country == "Sweden", max(new_cases)] - 250, 
+               label = paste("Jämförelser :: ",
+                             paste0("Norway :: Fall/100.000 = ", comma(world.today[country == 'Norway', ccper100k])), 
+                             paste0("Denmark :: Fall/100.000 = ", comma(world.today[country == 'Denmark', ccper100k])), 
+                             paste0("Portugal :: Fall/100.000 = ", comma(world.today[country == 'Portugal', ccper100k])), 
+                             paste0("Greece :: Fall/100.000 = ", comma(world.today[country == 'Greece', ccper100k])), 
+                             paste0("France :: Fall/100.000 = ", comma(world.today[country == 'France', ccper100k])), 
+                             paste0("Italy :: Fall/100.000 = ", comma(world.today[country == 'Italy', ccper100k])), 
+                             paste0("USA :: Fall/100.000 = ", comma(world.today[country == 'USA', ccper100k])), 
+                             sep = "\n"), 
+               color = 'black', size = 4) + 
+    labs(x = "", y = "Daily New Cases", 
+         title = "COVID-19 Svenska data i aggregate. Dagliga fall per 100.000 människor.", 
+         caption = paste("Translation to English", 
+         "Kumulative Fall/Dödsfall = Cumulative Cases/Deaths", 
+         "Procentuell Förändring (veckovis) = Percentage Change (weekly)", 
+         "Jämförelser = Comparison",
+         sep = "\n"))
   
-  if(input$world_type == 'cases') {
-    ggplot(world.today, aes(fill = ccper100k)) + 
-    geom_map(aes(map_id = country), map = map_w) + 
-    expand_limits(x = map$long, y = map$lat) + 
-    scale_fill_continuous(low = cases.low, high = cases.main, 
-                          name = "Cumulative Cases", 
-                          label = label_number_si()) + 
-    theme(axis.text = element_blank(),
-          axis.title = element_blank(),
-          axis.ticks = element_blank(),            
-          legend.position = "bottom") 
-  } else if(input$world_type == 'deaths') {
-    ggplot(world.today, aes(fill = cdper100k)) + 
-      geom_map(aes(map_id = country), map = map_w) + 
-      expand_limits(x = map$long, y = map$lat) + 
-      scale_fill_continuous(low = deaths.low, high = death.main, 
-                            name = "Cumulative Deaths", 
-                            label = label_number_si()) + 
-      theme(axis.text = element_blank(),
-            axis.title = element_blank(),
-            axis.ticks = element_blank(),            
-            legend.position = "bottom") 
-  } else {
-    ggplot(mtcars) + 
-      geom_point(aes(x = drat, y = wt)) + 
-      labs(x = "", y = "") + 
-      annotate("text", x = 3.75, y = 3.5, 
-               size = 16, color = "red",
-               label = "SOMETHING HAS GONE WRONG")
-  }
-  
-}, width = 500, height = 325 ) # output$plot_today_world
-# world rank cumulative 100k % change
-output$plot_today_world_100k_pctchg <- renderPlot( {
-  
-  
-  if(input$world_type == 'cases') {
-    ggplot(world.today, aes(fill = cc_pctchg)) + 
-    geom_map(aes(map_id = country), map = map_w) + 
-    expand_limits(x = map_w$long, y = map_w$lat) + 
-    scale_fill_continuous(low = cases.low, high = cases.main, 
-                          name = "Cumulative Cases", 
-                          label = label_percent()) + 
-    theme(axis.text = element_blank(),
-          axis.title = element_blank(),
-          axis.ticks = element_blank(),            
-          legend.position = "bottom") 
-  } else if(input$world_type == 'deaths') {
-    ggplot(world.today, aes(fill = cd_pctchg)) + 
-      geom_map(aes(map_id = country), map = map_w) + 
-      expand_limits(x = map$long, y = map$lat) + 
-      scale_fill_continuous(low = deaths.low, high = death.main, 
-                            name = "Cumulative Deaths", 
-                            label = label_percent()) + 
-      theme(axis.text = element_blank(),
-            axis.title = element_blank(),
-            axis.ticks = element_blank(),            
-            legend.position = "bottom") 
-  } else {
-    ggplot(mtcars) + 
-      geom_point(aes(x = drat, y = wt)) + 
-      labs(x = "", y = "") + 
-      annotate("text", x = 3.75, y = 3.5, 
-               size = 16, color = "red",
-               label = "SOMETHING HAS GONE WRONG")
-  }
-  
-}, width = 500, height = 325 ) # output$plot_today_world
+  })
+
+
+
+# world rank cumulative
 
 ## WORLD OVERVIEW VISUALS ##
-## TRENDS
-# cum cases daily
-output$world_growth_cases_daily <- renderPlot( { 
-  ggplot(data = world.summary[date <= reporting.date]) + 
-    geom_line(aes(x = date, y = new_cases), colour = cases.main) + 
-    labs(y = "Daily Cases", x = "") + 
-    scale_y_continuous(label = comma)
-}, width = 400, height = 200 )
-# home page :: world daily deaths trend :: new_deaths :: line chart
-output$world_growth_deaths_daily <- renderPlot( { 
-  ggplot(data = world.summary[date <= reporting.date]) + 
-    geom_line(aes(x = date, y = new_deaths), color = death.main) + 
-    labs(y = "Daily Deaths", x = "") + 
-    scale_y_continuous(label = comma)
-}, width = 400, height = 200 )
-output$world_trend_daily <- renderPlot( { 
-  ggplot(data = world.summary[date <= reporting.date]) + 
-    geom_line(aes(x = date, y = cases_per_100k), size = 1, colour = cases.main) + 
-    geom_line(aes(x = date, y = deaths_per_100k * 40), size = 0, color = death.main) +
-    labs(x = "Cases & Deaths per 100,000 population", y = "Index", 
-         caption = "Cases = Blue, Deaths = Red") 
-}, width = 400, height = 200 )
+
 
 
 
@@ -299,14 +339,12 @@ output$world_trend_daily <- renderPlot( {
 ###  THE UNITED STATES  ####
 ######################## ###
 
-
 ############### ###
 ###  OVERVIEW  ####
 ############### ###
 
-###
-###  THE VISUALS  ####
-###  
+##  MAP PLOT VISUALS  ####
+
 
 # US OVERVIEW :: PER 100K :: CASES AND DEATHS :: 'US_TYPE' 
 output$plot_overview_us_100k <- renderPlot( {
@@ -686,21 +724,7 @@ output$plot_us_trend_overall <- renderPlot( {
 }, width = 500, height = 325 ) # output$plot_today_world
 
 ## US OVERVIEW VISUALS ##
-## TRENDS
-# cum cases daily
-output$us_growth_cases_daily <- renderPlot( { 
-  ggplot(data = us.allup[date <= reporting.date]) + 
-    geom_line(aes(x = date, y = new_cases), colour = cases.main) + 
-    labs(y = "Daily Cases", x = "") + 
-    scale_y_continuous(label = comma)
-}, width = 400, height = 200 )
-# cum deaths daily
-output$us_growth_deaths_daily <- renderPlot( { 
-  ggplot(data = us.allup[date <= reporting.date]) + 
-    geom_line(aes(x = date, y = new_deaths), color = death.main) + 
-    labs(y = "Daily Deaths", x = "") + 
-    scale_y_continuous(label = comma)
-}, width = 400, height = 200 )
+
 # something else
 output$world_trend_daily <- renderPlot( { 
   ggplot(data = world.summary[date <= reporting.date]) + 
