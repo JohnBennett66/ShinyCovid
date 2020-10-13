@@ -203,6 +203,18 @@ us.data[ , cc_pctchg := (ccper100k-cc100k_lswk)/cc100k_lswk]
 us.data[ , cd_pctchg := (cdper100k-cd100k_lswk)/cd100k_lswk]
 setnafill(us.data, fill = 0, cols = 11:14)
 
+# rolling averages
+# cases
+us.today[ , one_week_cases := frollmean(us.today[,new_cases], 7)]
+us.today[ , two_week_cases := frollmean(us.today[,new_cases], 14)]
+us.today[ , three_week_cases := frollmean(us.today[,new_cases], 21)]
+# deaths
+us.today[ , one_week_cases := frollmean(us.today[,new_cases], 7)]
+us.today[ , two_week_cases := frollmean(us.today[,new_cases], 14)]
+us.today[ , three_week_cases := frollmean(us.today[,new_cases], 21)]
+# clear NAs
+setnafill(us.today, fill = 0, cols = 15:17)
+
 ##  TODAY'S DATA  ####
 us.today <- us.data[date == reporting.date]
 

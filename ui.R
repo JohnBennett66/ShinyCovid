@@ -21,16 +21,27 @@ library(RSocrata)
 ###
 options(datatable.optimize=1)
 
+# this is just for testing things, it's text assigned to a variable that can be used to 
+# test if variables can be displayed properly in diffferent functions, etc.
 popsicle <- c("a big bunch of text explaning a thing or two about something or another.")
 # icon("icon", class = NULL, lib = "font-awesome")
 
-###  PAGE LAYOUT :: MAIN & SIDEBAR :: SINGLE PLOT  ####
+################################################# ###
+###  PAGE LAYOUT :: FLUID PAGE :: NAVBAR AT TOP  ####
+################################################# ###
 fluidPage(title = "Worldwide COVID-19 Data Tracking App", 
-          # themeSelector(),
-  navbarPage("COVID-19 DATA TRACKING", theme = shinytheme("yeti"), 
-		tabPanel(icon("home", class = NULL, lib = "font-awesome"), fluid = TRUE,
+          # themeSelector(), # turn this on to try different built in styles
+  ### NAVBAR ####
+  navbarPage("COVID-19 DATA TRACKING", theme = shinytheme("simplex"), 
+		
+############################ ###
+###  HOME MENU & TAB PANEL  ####
+###  SINGLE TAB PANEL        ###
+############################ ###
+    tabPanel(icon("home", class = NULL, lib = "font-awesome"), fluid = TRUE,
       h2("Welcome to My COVID-19 Tracker", .noWS = 'before'),
       fluidRow(
+        ###  INTRO STATEMENT  ####
 		    column(6,
     			HTML("This app provides some analysis of the Covid-19 data worldwide. <br>
     			The analysis comes from a USA-centric perspective, but feel free to make suggestions. 
@@ -42,6 +53,8 @@ fluidPage(title = "Worldwide COVID-19 Data Tracking App",
     			 <h4><b>NOTE: </b>This is a new version and is not 100% finished. Sorry if anything 
     			     does not work. Also, check back regularly to see new updates.</h4>"),
 		    ), # column one
+
+ ###  MENU LEGEND  ####
 			  column(6, 
 			    p(HTML("&nbsp;&nbsp;MENU LEGEND"), style="background-color:rgb(51,51,51); color:white", 
 			      .noWS = 'after'),  
@@ -65,8 +78,12 @@ fluidPage(title = "Worldwide COVID-19 Data Tracking App",
 			  ) # column two
 		  ), # fluid row
 			hr(),
+
+###  OVERVIEW :: CURRENT SNAPSHOT  ####
 			h4("Current Stats"),
 			HTML("<em>Data current as of :  </em>"), strong(HTML(display.date)),
+
+###  WORLD 
 			HTML("<h5><strong>Worldwide</strong></h5>"),
 			HTML("Cumulative Cases ::  "), strong(HTML(comma(world.cases))), 
 			HTML(" &nbsp;&nbsp;==>>&nbsp;&nbsp; Weekly Increase ::  "), 
@@ -85,6 +102,8 @@ fluidPage(title = "Worldwide COVID-19 Data Tracking App",
 			  )
 		  ), 
 			div(class = "row", style = "width: 500px", style = "height: 50px",
+
+###  UNITED STATES 
 			    HTML("<h5><strong>United States</strong></h5>"),
 			    HTML("Cumulative Cases ::  "), strong(HTML(comma(us.cases))), 
     			HTML(" &nbsp;&nbsp;==>>&nbsp;&nbsp; Weekly Increase ::  "), 
@@ -108,19 +127,24 @@ fluidPage(title = "Worldwide COVID-19 Data Tracking App",
 			     from the last time you visited."
 			)
 		), #tabpanel welcome
+		
+################################ ###
+###  LEARNING MENU & TAB PANEL  ####
+###  SINGLE MENU ITEM            ###
+################################ ###
 		navbarMenu(icon("graduation-cap", class = NULL, lib = "font-awesome"), 
 			tabPanel("Learn About The Data", fluid = TRUE,
 				h3("How Should We Count COVID-19:"),
 				sidebarLayout(
   				sidebarPanel(
-					  # shinythemes::themeSelector(),
+					  # shinythemes::themeSelector(), # for choosing new themes
 					  selectInput('world_type', 
 					              HTML("Which Data Should We Use? <p>Cases or Deaths?</p>"),
 					              c("Cases" = "cases", "Deaths" = "deaths")),
 					  width = 2
 					), # sidebarpanel :: input dropdown :: which data
 					mainPanel(
-						h4("Cumulative Cases"),
+						h4("Cumulative"),
 						fluidRow(style="height:350px",
 						  column(5, style="height:350px", 
   						  plotOutput('plot_today_world'), 
@@ -129,7 +153,7 @@ fluidPage(title = "Worldwide COVID-19 Data Tracking App",
   						  htmlOutput('text_today_world'),
 						  )
 						),
-						h4("Cumulative Cases per 100,000 population"), 
+						h4("Cumulative per 100,000 population"), 
 						fluidRow(style="height:350px", 
 						  column(5, style="height:350px", 
 						    plotOutput('plot_today_world_100k'), 
@@ -138,7 +162,7 @@ fluidPage(title = "Worldwide COVID-19 Data Tracking App",
 						    htmlOutput('text_today_world_100k'), 
 						  )
 						), 
-						h4("Cumulative Cases per 100,000 percent change"),
+						h4("Cumulative per 100,000 percent change"),
 						fluidRow(style="height:350px",  
 						  column(5, style="height:350px", 
     						plotOutput('plot_today_world_100k_pctchg'), 
@@ -157,15 +181,23 @@ fluidPage(title = "Worldwide COVID-19 Data Tracking App",
 				) # sidebarlayout
 			) #tabpanel :: where are we
 		),  # navbarmenu :: education
+
+############################# ###
+###  WORLD MENU & TAB PANEL  ####
+###  MULTIPLE MENU ITEMS      ###
+############################# ###
 		navbarMenu(icon("globe", class = NULL, lib = "font-awesome"),
 		  tabPanel("stuff goes here", fluid = TRUE 
 		  ) # tab panel :: stuff goes here
 		), # navbarmenu :: the world
 
-### ### ### ### ### ###
-###  THE US MENU   ####
-### ### ### ### ### ###
-		navbarMenu(icon("flag-usa", class = NULL, lib = "font-awesome"), 
+##################################### ###
+###  UNITED STATES MENU & TAB PANEL  ####
+###  MULTIPLE MENU ITEMS              ###
+##################################### ###
+    navbarMenu(icon("flag-usa", class = NULL, lib = "font-awesome"), 
+               
+###  US :: OVERVIEW MENU ITEM AND TAB PANEL  ####
 			tabPanel("Overview", fluid = TRUE,
 				h3("The United States Overview"),
 				sidebarLayout(
@@ -187,8 +219,8 @@ fluidPage(title = "Worldwide COVID-19 Data Tracking App",
     					) 
 						),
 						h4("Overview for the US Overall"),
-						fluidRow(style="height:350px", 
-						  column(5, style="height:350px", 
+						fluidRow(style="height:150px", 
+						  column(5, style="height:150px", 
 				         div(class = "row", style = "width: 500px", style = "height: 50px",
 				             HTML("<h5><strong>United States</strong></h5>"),
 				             HTML("Cumulative Cases ::  "), strong(HTML(comma(us.cases))), 
@@ -209,7 +241,7 @@ fluidPage(title = "Worldwide COVID-19 Data Tracking App",
 						         
 						         
 						         ),
-						  column(5, style="height:350px", 
+						  column(5, style="height:150px", 
 						         HTML("other stuff")
 						         )
 						),
@@ -223,30 +255,43 @@ fluidPage(title = "Worldwide COVID-19 Data Tracking App",
 					) # mainpanel
 				) # sidebarlayout
 			), #tabpanel where we are now
+
+###  US :: MENU DIVIDER  ####
+			'------',
+
+###  US :: RANKINGS MENU ITEM AND TAB PANEL  ####
 			tabPanel("US Rankings", fluid = TRUE, 
 			         # shinythemes::themeSelector(),
 			  sidebarLayout(
 			    sidebarPanel(
 			      selectInput('us_rank', 
 			                        p("Select Sort Order", style="font-size:13px"),
-			                        c("Cases/100k" = "ccper100k", "Deaths/100k" = "cdper100k", 
-			                          "Cases Change" = "cc_pctchg", "Deaths Change" = "cd_pctchg")
+			                        c("Cases/100k" = "ccper100k", 
+			                          "Deaths/100k" = "cdper100k", 
+			                          "Cases Change" = "cc_pctchg", 
+			                          "Deaths Change" = "cd_pctchg")
 			      ), width = 2
 			    ), #sidebar
 			    mainPanel(
 			      fluidRow(
 			        column(5, 
-			               tableOutput('us_ranking') 
+                 HTML("<h4>Statistics Sorted by Selected Metric<sup>&dagger;</sup></h4>"), 
+                 tableOutput('us_ranking'), 
+                 HTML("<b><sup>&dagger;</sup> Selected Metric is in first column.<br>
+                      Selected Metric is sorted in descending order (highest value at the top).<br>
+                      The data is current as of </b>", strong(HTML(display.date)))
 			        ), 
 			        column(5, 
-			               plotOutput('plot_today_us_rank')
+	               h4("Chart for Selected Metric"), 
+	               plotOutput('plot_today_us_rank'), 
+	               htmlOutput('text_today_us_rank')
 			        )
 			      ) 
 			    ), #main
 			  ), #layout
 			), # tab-"us rankings"
 			        
-			        
+###  US :: RANKINGS MENU ITEM AND TAB PANEL  ####
 			tabPanel("US Trends", fluid = TRUE,
 					 h3("The States ranked:"),
 					 sidebarLayout(

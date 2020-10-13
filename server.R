@@ -23,14 +23,27 @@ options(datatable.optimize=1)
 source('setup_anlyss.R')
 
 ###  SET SOME VARIABLES  ####
+# various dates and date formatting
 reporting.date <- df.tb[country == "USA"][date == max(date)][, unique(date)]
 report.date <- as.character(reporting.date)
 display.date <- paste(day(reporting.date), 
                       month(reporting.date, label = TRUE, abbr = FALSE),
                       year(reporting.date),
                       sep = " ")
+# color values for plots, charts, graphs, etc
+plot.back <- rgb(248, 245, 240, maxColorValue = 255)
+plot.border <- rgb(223, 215, 202, maxColorValue = 255)
+death.main <- rgb(217, 35, 15, maxColorValue = 255)
+deaths.mid <- rgb(245, 125, 112, maxColorValue = 255)
+deaths.low <- rgb(252, 212, 207, maxColorValue = 255)
+cases.main <- rgb(15, 35, 217, maxColorValue = 255)
+cases.mid <- rgb(112, 125, 245, maxColorValue = 255)
+cases.low <- rgb(207, 212, 252, maxColorValue = 255)
 
-###  MAIN FUNCTION  ####
+###################### ###
+###  MAIN FUNCTION    ####
+###  INPUT AND OUTPUT  ###
+###################### ###
 function(input, output) {
   
 ###  GENERIC STUFF  ####  
@@ -39,9 +52,45 @@ output$current_data_date <- renderUI( {
   p(">>", em("Data current as of :  "), strong(HTML(display.date)), "<<")
 } )
   
-  
+############################################ ###
+###  HOME MENU :: INTRODUCTION :: OVERVIEW  ####
+############################################ ###
+
+###  OVERVIEW  ####
+###  WORLD
+###  U.S.
+
+
+################ ###
+###  EDUCATION  ####
+################ ###
+
+
+########################### ###
+###  LEARN ABOUT THE DATA  ####
+########################### ###
+
+###  CASES
+
+###  DEATHS
+
+
+
+
+
+
+
+#########  
 ###  THE WORLD  ####
 ###  WHERE ARE WE
+
+
+
+
+
+
+
+
   
 ##  THE TEXT
 # cumulative chart explanation
@@ -118,7 +167,7 @@ output$plot_today_world <- renderPlot( {
     ggplot(world.today, aes(fill = cum_cases)) + 
     geom_map(aes(map_id = country), map = map_w) + 
     expand_limits(x = map$long, y = map$lat) + 
-    scale_fill_continuous(low = "lightblue", high = "blue3", 
+    scale_fill_continuous(low = cases.low, high = cases.main, 
                           name = "Cumulative Cases", 
                           label = label_number_si()) + 
     theme(axis.text = element_blank(),
@@ -129,7 +178,7 @@ output$plot_today_world <- renderPlot( {
     ggplot(world.today, aes(fill = cum_deaths)) + 
       geom_map(aes(map_id = country), map = map_w) + 
       expand_limits(x = map$long, y = map$lat) + 
-      scale_fill_continuous(low = "lightpink", high = "orangered", 
+      scale_fill_continuous(low = deaths.low, high = death.main, 
                             name = "Cumulative Deaths", 
                             label = label_number_si()) + 
       theme(axis.text = element_blank(),
@@ -155,7 +204,7 @@ output$plot_today_world_100k <- renderPlot( {
     ggplot(world.today, aes(fill = ccper100k)) + 
     geom_map(aes(map_id = country), map = map_w) + 
     expand_limits(x = map$long, y = map$lat) + 
-    scale_fill_continuous(low = "lightblue", high = "blue3", 
+    scale_fill_continuous(low = cases.low, high = cases.main, 
                           name = "Cumulative Cases", 
                           label = label_number_si()) + 
     theme(axis.text = element_blank(),
@@ -166,7 +215,7 @@ output$plot_today_world_100k <- renderPlot( {
     ggplot(world.today, aes(fill = cdper100k)) + 
       geom_map(aes(map_id = country), map = map_w) + 
       expand_limits(x = map$long, y = map$lat) + 
-      scale_fill_continuous(low = "lightpink", high = "orangered", 
+      scale_fill_continuous(low = deaths.low, high = death.main, 
                             name = "Cumulative Deaths", 
                             label = label_number_si()) + 
       theme(axis.text = element_blank(),
@@ -191,7 +240,7 @@ output$plot_today_world_100k_pctchg <- renderPlot( {
     ggplot(world.today, aes(fill = cc_pctchg)) + 
     geom_map(aes(map_id = country), map = map_w) + 
     expand_limits(x = map_w$long, y = map_w$lat) + 
-    scale_fill_continuous(low = "lightblue", high = "blue3", 
+    scale_fill_continuous(low = cases.low, high = cases.main, 
                           name = "Cumulative Cases", 
                           label = label_percent()) + 
     theme(axis.text = element_blank(),
@@ -202,7 +251,7 @@ output$plot_today_world_100k_pctchg <- renderPlot( {
     ggplot(world.today, aes(fill = cd_pctchg)) + 
       geom_map(aes(map_id = country), map = map_w) + 
       expand_limits(x = map$long, y = map$lat) + 
-      scale_fill_continuous(low = "lightpink", high = "orangered", 
+      scale_fill_continuous(low = deaths.low, high = death.main, 
                             name = "Cumulative Deaths", 
                             label = label_percent()) + 
       theme(axis.text = element_blank(),
@@ -225,29 +274,232 @@ output$plot_today_world_100k_pctchg <- renderPlot( {
 # cum cases daily
 output$world_growth_cases_daily <- renderPlot( { 
   ggplot(data = world.summary[date <= reporting.date]) + 
-    geom_line(aes(x = date, y = new_cases), colour = 'blue') + 
+    geom_line(aes(x = date, y = new_cases), colour = cases.main) + 
     labs(y = "Daily Cases", x = "") + 
     scale_y_continuous(label = comma)
 }, width = 400, height = 200 )
+# home page :: world daily deaths trend :: new_deaths :: line chart
 output$world_growth_deaths_daily <- renderPlot( { 
   ggplot(data = world.summary[date <= reporting.date]) + 
-    geom_line(aes(x = date, y = new_deaths), color = 'red') + 
+    geom_line(aes(x = date, y = new_deaths), color = death.main) + 
     labs(y = "Daily Deaths", x = "") + 
     scale_y_continuous(label = comma)
 }, width = 400, height = 200 )
 output$world_trend_daily <- renderPlot( { 
   ggplot(data = world.summary[date <= reporting.date]) + 
-    geom_line(aes(x = date, y = cases_per_100k), size = 1, colour = 'blue') + 
-    geom_line(aes(x = date, y = deaths_per_100k * 40), size = 0, color = 'red') +
+    geom_line(aes(x = date, y = cases_per_100k), size = 1, colour = cases.main) + 
+    geom_line(aes(x = date, y = deaths_per_100k * 40), size = 0, color = death.main) +
     labs(x = "Cases & Deaths per 100,000 population", y = "Index", 
          caption = "Cases = Blue, Deaths = Red") 
 }, width = 400, height = 200 )
 
 
 
-
+######################## ###
 ###  THE UNITED STATES  ####
-###  WHERE ARE WE
+######################## ###
+
+
+############### ###
+###  OVERVIEW  ####
+############### ###
+
+###
+###  THE VISUALS  ####
+###  
+
+# US OVERVIEW :: PER 100K :: CASES AND DEATHS :: 'US_TYPE' 
+output$plot_overview_us_100k <- renderPlot( {
+  
+  if(input$us_type == 'cases') {
+    ggplot(us.today, aes(fill = ccper100k)) + 
+      geom_map(aes(map_id = state), map = map_us) + 
+      expand_limits(x = map_us$long, y = map_us$lat) + 
+      scale_fill_continuous(low = cases.low, high = cases.main, 
+                            name = "Cumulative Cases", 
+                            label = label_number_si()) + 
+      theme(axis.text = element_blank(),
+            axis.title = element_blank(),
+            axis.ticks = element_blank(),            
+            legend.position = "bottom") 
+  } else if(input$us_type == 'deaths') {
+    ggplot(us.today, aes(fill = cdper100k)) + 
+      geom_map(aes(map_id = state), map = map_us) + 
+      expand_limits(x = map_us$long, y = map_us$lat) + 
+      scale_fill_continuous(low = deaths.low, high = death.main, 
+                            name = "Cumulative Deaths", 
+                            label = label_number_si()) + 
+      theme(axis.text = element_blank(),
+            axis.title = element_blank(),
+            axis.ticks = element_blank(),            
+            legend.position = "bottom")
+  } else {
+    ggplot(mtcars) + 
+      geom_point(aes(x = drat, y = wt)) + 
+      labs(x = "", y = "") + 
+      annotate("text", x = 3.75, y = 3.5, 
+               size = 16, color = "red",
+               label = "SOMETHING HAS GONE WRONG")
+  } 
+  
+}, width = 500, height = 325 ) # output$plot_today_world
+
+###
+###  THE TEXT  ####
+###  
+
+###  US OVERVIEW :: PER 100K :: CASES AND DEATHS :: 'US_TYPE'
+output$text_overview_us_100k <- renderUI( { 
+  if(input$us_type == 'cases') { 
+    HTML("Here we are looking at the rate of cases. This means the number of cases per
+         100,000 people (in this case, it could be 10,000 or 1,000,000 or any number). 
+         This compares all the states evenly (fairly). The darker states have more cases 
+         (per 100,000 people) than the lighter states. More cases (per capita*) means 
+         one or more of these; 
+           <ul>
+           <li>less control of the spread of the virus</li>
+           <li>less recognition of the problem (not enough testing)</li>
+           <li>unaware of the problem/risk</li>
+           </ul>
+         We should expect the rate of cases to be fairly constant if an area has good
+         systems of control in place. There will always be some cases. <br>
+         <br>
+         * &ldqou;per capita&rdqou; means the same as &ldqou;per 100,000 people&rdqou;"
+    )
+  } else if(input$us_type == 'deaths') { 
+    HTML("These are the number of deaths per 100,000 people in each state. 
+           The darker states have more deaths (per 100,000 people) than the 
+           lighter states. More deaths (per capita*) means one or more of these 
+           <ul>
+           <li>less control of the spread of the virus</li>
+           </ul> 
+           next")
+  }
+} )  # output$text_overview_us_100k 
+
+
+############### ###
+###  RANKINGS  ####
+############### ###
+
+###
+###  THE VISUALS & DATA TABLES  ####
+###  
+
+# US RANKINGS :: DATA TABLE :: 'us_rankings' 
+output$us_ranking <- renderTable( { 
+  if(input$us_rank == 'ccper100k')  { 
+    setorder(us.table, -ccper100k)
+    us.table[ , .(State, `Cases /100k`, `Deaths /100k`, 
+                  `Cases Change`, `Deaths Change`)]
+  } else if(input$us_rank == 'cdper100k')  { 
+    setorder(us.table, -cdper100k)
+    us.table[ , .(State, `Deaths /100k`, `Cases /100k`, 
+                  `Deaths Change`, `Cases Change`)]
+  } else if(input$us_rank == 'cc_pctchg')  { 
+    setorder(us.table, -cc_pctchg)
+    us.table[ , .(State, `Cases Change`, `Deaths Change`, 
+                  `Cases /100k`, `Deaths /100k`)]
+  } else if(input$us_rank == 'cd_pctchg')  { 
+    setorder(us.table, -cd_pctchg)
+    us.table[ , .(State, `Deaths Change`, `Cases Change`, 
+                  `Deaths /100k`, `Cases /100k`)]
+  }
+} , striped = TRUE, bordered = TRUE, rownames = TRUE
+)
+
+# US RANKINGS :: MAP RANKINGS :: 'US_RANK'
+output$plot_today_us_rank <- renderPlot( { 
+  if(input$us_rank == 'ccper100k')  { 
+    ggplot(us.table, aes(fill = ccper100k)) + 
+      geom_map(aes(map_id = State), map = map_us) + 
+      expand_limits(x = map_us$long, y = map_us$lat) + 
+      scale_fill_continuous(low = cases.low, high = cases.main, 
+                            name = "Cases per 100,000 Population", 
+                            label = label_number_si()) + 
+      theme(axis.text = element_blank(),
+            axis.title = element_blank(),
+            axis.ticks = element_blank(), 
+            legend.position = 'bottom', 
+            plot.background = element_rect(colour = plot.border, fill = plot.back), 
+            panel.background = element_rect(colour = plot.back, fill = plot.back), 
+            legend.background = element_rect(fill = plot.back),
+            panel.grid = element_line(color = plot.back)
+      )  
+  } else if(input$us_rank == 'cdper100k')  { 
+    ggplot(us.table, aes(fill = cdper100k)) + 
+      geom_map(aes(map_id = State), map = map_us) + 
+      expand_limits(x = map_us$long, y = map_us$lat) + 
+      scale_fill_continuous(low = "white", high = death.main, 
+                            name = "Deaths per 100,000 Population", 
+                            label = label_number_si()) + 
+      theme(axis.text = element_blank(),
+            axis.title = element_blank(),
+            axis.ticks = element_blank(), 
+            legend.position = 'bottom', 
+            plot.background = element_rect(colour = plot.border, fill = plot.back), 
+            panel.background = element_rect(colour = plot.back, fill = plot.back), 
+            legend.background = element_rect(fill = plot.back),
+            panel.grid = element_line(color = plot.back)
+      ) 
+  } else if(input$us_rank == 'cc_pctchg')  { 
+    ggplot(us.table, aes(fill = cc_pctchg)) + 
+      geom_map(aes(map_id = State), map = map_us) + 
+      expand_limits(x = map_us$long, y = map_us$lat) + 
+      scale_fill_continuous(low = cases.low, high = cases.main, 
+                            name = "Weekly Change in Cases", 
+                            label = label_number_si()) + 
+      theme(axis.text = element_blank(),
+            axis.title = element_blank(),
+            axis.ticks = element_blank(), 
+            legend.position = 'bottom', 
+            plot.background = element_rect(colour = plot.border, fill = plot.back), 
+            panel.background = element_rect(colour = plot.back, fill = plot.back), 
+            legend.background = element_rect(fill = plot.back),
+            panel.grid = element_line(color = plot.back)
+      ) 
+  } else if(input$us_rank == 'cd_pctchg')  { 
+    ggplot(us.table, aes(fill = cd_pctchg)) + 
+      geom_map(aes(map_id = State), map = map_us) + 
+      expand_limits(x = map_us$long, y = map_us$lat) + 
+      scale_fill_continuous(low = "pink", high = death.main, 
+                            name = "Weekly Change in Deaths", 
+                            label = label_number_si()) + 
+      theme(axis.text = element_blank(),
+            axis.title = element_blank(),
+            axis.ticks = element_blank(), 
+            legend.position = 'bottom', 
+            plot.background = element_rect(colour = plot.border, fill = plot.back), 
+            panel.background = element_rect(colour = plot.back, fill = plot.back), 
+            legend.background = element_rect(fill = plot.back),
+            panel.grid = element_line(color = plot.back)
+      ) 
+  } else {
+    ggplot(mtcars) + 
+      geom_point(aes(x = drat, y = wt)) + 
+      labs(x = "", y = "") + 
+      annotate("text", x = 3.75, y = 3.5, 
+               size = 16, color = "red",
+               label = "SOMETHING HAS GONE WRONG")
+  }
+  
+}, width = 410, height = 270  
+)
+
+
+
+
+
+
+
+
+###  US TRENDS  #### 
+
+
+
+
+
+
 
 ##  THE TEXT
 # cumulative chart explanation
@@ -276,33 +528,6 @@ output$text_today_world <- renderUI( {
 } ) # world cum text
 
 ###  THE OVERVIEW PANEL :: US  ####
-output$text_overview_us_100k <- renderUI( { 
-  if(input$us_type == 'cases') { 
-    HTML("Here we are looking at the rate of cases. This means the number of cases per
-         100,000 people (in this case, it could be 10,000 or 1,000,000 or any number). 
-         This compares all the states evenly (fairly). The darker states have more cases 
-         (per 100,000 people) than the lighter states. More cases (per capita*) means 
-         one or more of these; 
-           <ul>
-           <li>less control of the spread of the virus</li>
-           <li>less recognition of the problem (not enough testing)</li>
-           <li>unaware of the problem/risk</li>
-           </ul>
-         We should expect the rate of cases to be fairly constant if an area has good
-         systems of control in place. There will always be some cases. <br>
-         <br>
-         * &ldqou;per capita&rdqou; means the same as &ldqou;per 100,000 people&rdqou;"
-    )
-  } else if(input$us_type == 'deaths') { 
-      HTML("These are the number of deaths per 100,000 people in each state. 
-           The darker states have more deaths (per 100,000 people) than the 
-           lighter states. More deaths (per capita*) means one or more of these 
-           <ul>
-           <li>less control of the spread of the virus</li>
-           </ul> 
-           next")
-  }
-} )
 
 output$text_today_world_100k <- renderUI( {
   if(input$world_type == 'cases') {
@@ -344,134 +569,10 @@ output$text_today_world_100k_pctchg <- renderUI( {
 
 ##  THE VISUALS :: US  ####
 ##  THE OVERVIEW PANEL :: US  ####
-output$plot_overview_us_100k <- renderPlot( {
-  
-  if(input$us_type == 'cases') {
-    ggplot(us.today, aes(fill = ccper100k)) + 
-      geom_map(aes(map_id = state), map = map_us) + 
-      expand_limits(x = map_us$long, y = map_us$lat) + 
-      scale_fill_continuous(low = "lightblue", high = "blue3", 
-                            name = "Cumulative Cases", 
-                            label = label_number_si()) + 
-      theme(axis.text = element_blank(),
-            axis.title = element_blank(),
-            axis.ticks = element_blank(),            
-            legend.position = "bottom") 
-  } else if(input$us_type == 'deaths') {
-    ggplot(us.today, aes(fill = cdper100k)) + 
-      geom_map(aes(map_id = state), map = map_us) + 
-      expand_limits(x = map_us$long, y = map_us$lat) + 
-      scale_fill_continuous(low = "lightpink", high = "orangered", 
-                            name = "Cumulative Deaths", 
-                            label = label_number_si()) + 
-      theme(axis.text = element_blank(),
-            axis.title = element_blank(),
-            axis.ticks = element_blank(),            
-            legend.position = "bottom")
-  } else {
-    ggplot(mtcars) + 
-      geom_point(aes(x = drat, y = wt)) + 
-      labs(x = "", y = "") + 
-      annotate("text", x = 3.75, y = 3.5, 
-               size = 16, color = "red",
-               label = "SOMETHING HAS GONE WRONG")
-  } 
-  
-}, width = 500, height = 325 ) # output$plot_today_world
 
 # ranking table
-output$us_ranking <- renderTable( { 
-  if(input$us_rank == 'ccper100k')  { 
-    setorder(us.table, -ccper100k)
-    us.table[ , .(State, `Cases /100k`, `Deaths /100k`, 
-                  `Cases Change`, `Deaths Change`)]
-  } else if(input$us_rank == 'cdper100k')  { 
-    setorder(us.table, -cdper100k)
-    us.table[ , .(State, `Cases /100k`, `Deaths /100k`, 
-                  `Cases Change`, `Deaths Change`)]
-  } else if(input$us_rank == 'cc_pctchg')  { 
-    setorder(us.table, -cc_pctchg)
-    us.table[ , .(State, `Cases Change`, `Deaths Change`, 
-                  `Cases /100k`, `Deaths /100k`)]
-  } else if(input$us_rank == 'cd_pctchg')  { 
-    setorder(us.table, -cd_pctchg)
-    us.table[ , .(State, `Deaths Change`, `Cases Change`, 
-                  `Deaths /100k`, `Cases /100k`)]
-  }
-} , striped = TRUE, bordered = TRUE, rownames = TRUE
-)
+
 # ranking plot
-plot.back <- rgb(248, 245, 240, maxColorValue = 255)
-plot.border <- rgb(223, 215, 202, maxColorValue = 255)
-output$plot_today_us_rank <- renderPlot( { 
-  if(input$us_rank == 'ccper100k')  { 
-    ggplot(us.table, aes(fill = ccper100k)) + 
-      geom_map(aes(map_id = State), map = map_us) + 
-      expand_limits(x = map_us$long, y = map_us$lat) + 
-      scale_fill_continuous(low = "lightblue", high = "blue3", 
-                            name = "Cases per 100,000 Population", 
-                            label = label_number_si()) + 
-      theme(axis.text = element_blank(),
-            axis.title = element_blank(),
-            axis.ticks = element_blank(), 
-            legend.position = 'bottom', 
-            plot.background = element_rect(colour = plot.border, fill = plot.back), 
-            panel.background = element_rect(colour = plot.back, fill = plot.back), 
-            legend.background = element_rect(fill = plot.back),
-            panel.grid = element_line(color = plot.back)
-            )  
-  } else if(input$us_rank == 'cdper100k')  { 
-    ggplot(us.table, aes(fill = cdper100k)) + 
-      geom_map(aes(map_id = State), map = map_us) + 
-      expand_limits(x = map_us$long, y = map_us$lat) + 
-      scale_fill_continuous(low = "white", high = "orangered", 
-                            name = "Deaths per 100,000 Population", 
-                            label = label_number_si()) + 
-      theme(axis.text = element_blank(),
-            axis.title = element_blank(),
-            axis.ticks = element_blank(), 
-            legend.position = 'bottom', 
-            plot.background = element_rect(colour = plot.border, fill = plot.back), 
-            panel.background = element_rect(colour = plot.back, fill = plot.back), 
-            legend.background = element_rect(fill = plot.back),
-            panel.grid = element_line(color = plot.back)
-      ) 
-  } else if(input$us_rank == 'cc_pctchg')  { 
-    ggplot(us.table, aes(fill = cc_pctchg)) + 
-      geom_map(aes(map_id = State), map = map_us) + 
-      expand_limits(x = map_us$long, y = map_us$lat) + 
-      scale_fill_continuous(low = "lightblue", high = "blue3", 
-                            name = "Cases per 100,000 Population", 
-                            label = label_number_si()) + 
-      theme(axis.text = element_blank(),
-            axis.title = element_blank(),
-            axis.ticks = element_blank(), 
-            legend.position = 'bottom', 
-            plot.background = element_rect(colour = plot.border, fill = plot.back), 
-            panel.background = element_rect(colour = plot.back, fill = plot.back), 
-            legend.background = element_rect(fill = plot.back),
-            panel.grid = element_line(color = plot.back)
-      ) 
-  } else if(input$us_rank == 'cd_pctchg')  { 
-    ggplot(us.table, aes(fill = cd_prtchg)) + 
-      geom_map(aes(map_id = State), map = map_us) + 
-      expand_limits(x = map_us$long, y = map_us$lat) + 
-      scale_fill_continuous(low = "pink", high = "orangered", 
-                            name = "Cases per 100,000 Population", 
-                            label = label_number_si()) + 
-      theme(axis.text = element_blank(),
-            axis.title = element_blank(),
-            axis.ticks = element_blank(), 
-            legend.position = 'bottom', 
-            plot.background = element_rect(colour = plot.border, fill = plot.back), 
-            panel.background = element_rect(colour = plot.back, fill = plot.back), 
-            legend.background = element_rect(fill = plot.back),
-            panel.grid = element_line(color = plot.back)
-      ) 
-  }
-  
-}, width = 410, height = 270  
-)
 # stats rank cumulative
 output$plot_today_us <- renderPlot( {
   
@@ -479,7 +580,7 @@ output$plot_today_us <- renderPlot( {
     ggplot(us.today, aes(fill = cum_cases)) + 
     geom_map(aes(map_id = state), map = map_us) + 
     expand_limits(x = map_us$long, y = map_us$lat) + 
-    scale_fill_continuous(low = "lightblue", high = "blue3", 
+    scale_fill_continuous(low = cases.low, high = cases.main, 
                           name = "Cumulative Cases", 
                           label = label_number_si()) + 
     theme(axis.text = element_blank(),
@@ -490,7 +591,7 @@ output$plot_today_us <- renderPlot( {
     ggplot(us.today, aes(fill = cum_deaths)) + 
       geom_map(aes(map_id = state), map = map_us) + 
       expand_limits(x = map_us$long, y = map_us$lat) + 
-      scale_fill_continuous(low = "lightpink", high = "orangered", 
+      scale_fill_continuous(low = deaths.low, high = death.main, 
                             name = "Cumulative Deaths", 
                             label = label_number_si()) + 
       theme(axis.text = element_blank(),
@@ -518,7 +619,7 @@ output$plot_today_us_100k_pctchg <- renderPlot( {
     ggplot(us.today, aes(fill = cc_pctchg)) + 
     geom_map(aes(map_id = state), map = map_us) + 
     expand_limits(x = map_us$long, y = map_us$lat) + 
-    scale_fill_continuous(low = "lightblue", high = "blue3", 
+    scale_fill_continuous(low = cases.low, high = cases.main, 
                           name = "Cumulative Cases", 
                           label = label_number_si()) + 
     theme(axis.text = element_blank(),
@@ -529,7 +630,7 @@ output$plot_today_us_100k_pctchg <- renderPlot( {
     ggplot(us.today, aes(fill = cd_pctchg)) + 
       geom_map(aes(map_id = state), map = map_us) + 
       expand_limits(x = map_us$long, y = map_us$lat) + 
-      scale_fill_continuous(low = "lightpink", high = "orangered", 
+      scale_fill_continuous(low = deaths.low, high = death.main, 
                             name = "Cumulative Deaths", 
                             label = label_number_si()) + 
       theme(axis.text = element_blank(),
@@ -555,7 +656,7 @@ output$plot_us_trend_overall <- renderPlot( {
     ggplot(us.today, aes(fill = cc_pctchg)) + 
       geom_map(aes(map_id = state), map = map_us) + 
       expand_limits(x = map_us$long, y = map_us$lat) + 
-      scale_fill_continuous(low = "lightblue", high = "blue3", 
+      scale_fill_continuous(low = cases.low, high = cases.main, 
                             name = "Cumulative Cases", 
                             label = label_number_si()) + 
       theme(axis.text = element_blank(),
@@ -566,7 +667,7 @@ output$plot_us_trend_overall <- renderPlot( {
   #   ggplot(us.today, aes(fill = cd_pctchg)) + 
   #     geom_map(aes(map_id = state), map = map_us) + 
   #     expand_limits(x = map_us$long, y = map_us$lat) + 
-  #     scale_fill_continuous(low = "lightpink", high = "orangered", 
+                                          #     scale_fill_continuous(low = deaths.low, high = y, 
   #                           name = "Cumulative Deaths", 
   #                           label = label_number_si()) + 
   #     theme(axis.text = element_blank(),
@@ -589,27 +690,35 @@ output$plot_us_trend_overall <- renderPlot( {
 # cum cases daily
 output$us_growth_cases_daily <- renderPlot( { 
   ggplot(data = us.allup[date <= reporting.date]) + 
-    geom_line(aes(x = date, y = new_cases), colour = 'blue') + 
+    geom_line(aes(x = date, y = new_cases), colour = cases.main) + 
     labs(y = "Daily Cases", x = "") + 
     scale_y_continuous(label = comma)
 }, width = 400, height = 200 )
 # cum deaths daily
 output$us_growth_deaths_daily <- renderPlot( { 
   ggplot(data = us.allup[date <= reporting.date]) + 
-    geom_line(aes(x = date, y = new_deaths), color = 'red') + 
+    geom_line(aes(x = date, y = new_deaths), color = death.main) + 
     labs(y = "Daily Deaths", x = "") + 
     scale_y_continuous(label = comma)
 }, width = 400, height = 200 )
 # something else
 output$world_trend_daily <- renderPlot( { 
   ggplot(data = world.summary[date <= reporting.date]) + 
-    geom_line(aes(x = date, y = cases_per_100k), size = 1, colour = 'blue') + 
-    geom_line(aes(x = date, y = deaths_per_100k * 40), size = 0, color = 'red') +
+    geom_line(aes(x = date, y = cases_per_100k), size = 1, colour = cases.main) + 
+    geom_line(aes(x = date, y = deaths_per_100k * 40), size = 0, color = death.main) +
     labs(x = "Cases & Deaths per 100,000 population", y = "Index", 
          caption = "Cases = Blue, Deaths = Red") 
 }, width = 400, height = 200 )
 
 
+
+
+
+################# ###
+###  ABOUT PAGE  ####
+################# ###
+
+## NOTHING YET :: 2020-10-12 
 
 
 } # function
