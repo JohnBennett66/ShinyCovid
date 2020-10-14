@@ -345,7 +345,6 @@ output$world_country_trend_stats <- renderPlot( {
 
 ##  MAP PLOT VISUALS  ####
 
-
 # US OVERVIEW :: PER 100K :: CASES AND DEATHS :: 'US_TYPE' 
 output$plot_overview_us_100k <- renderPlot( {
   
@@ -382,9 +381,8 @@ output$plot_overview_us_100k <- renderPlot( {
   
 }, width = 500, height = 325 ) # output$plot_today_world
 
-###
+
 ###  THE TEXT  ####
-###  
 
 ###  US OVERVIEW :: PER 100K :: CASES AND DEATHS :: 'US_TYPE'
 output$text_overview_us_100k <- renderUI( { 
@@ -532,14 +530,19 @@ output$plot_today_us_rank <- renderPlot( {
 
 
 ###  US TRENDS  #### 
+## TRENDS VISUALS  ####
+output$us_daily_cases <- renderPlot( { 
+  
+  ggplot(us.allup) + 
+    geom_line(aes(x = date, y = cc_pctchg))
+  
+})
 
 
 
 
 
-
-
-##  THE TEXT
+##  TRENDS  TEXT
 # cumulative chart explanation
 output$text_today_world <- renderUI( {
   if(input$world_type == 'cases') {

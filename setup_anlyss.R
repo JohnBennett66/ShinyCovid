@@ -232,7 +232,13 @@ setnafill(us.allup, fill = 0, cols = 10:11)
 us.allup[ , cc_pctchg := ((ccper100k - cc100k_lswk) / cc100k_lswk)]
 us.allup[ , cd_pctchg := ((cdper100k - cd100k_lswk) / cd100k_lswk)]
 setnafill(us.allup, fill = 0, cols = 12:13)
-
+us.allup[ , nc_chg := ((new_cases - shift(new_cases,1))/shift(new_cases,1))]
+us.allup[ , nd_chg := ((new_deaths - shift(new_deaths,1))/shift(new_deaths,1))]
+setnafill(us.allup, fill = 0, cols = 14:15)
+us.allup[nc_chg == "Inf", nc_chg := 0]
+us.allup[nd_chg == "Inf", nd_chg := 0]
+us.allup[cc_pctchg == "Inf", cc_pctchg := 0]
+us.allup[cd_pctchg == "Inf", cd_pctchg := 0]
 
 
 ##  US TABLE :: TODAY  ####
@@ -244,6 +250,14 @@ us.table[ , "Deaths Change" := percent(cd_pctchg, accuracy = 0.1)]
 setnames(us.table, 1, "State")
 setorder(us.table, -ccper100k)
 
+
+##  US WEEKLY TABLE  ####
+us.wkly <- us.data[ , lapply(.SD, sum), by = .(date), 
+                    .SDcols=c("new_cases", "new_deaths", 
+                              "cum_cases", "cum_deaths")]
+us.wkly[ , floor_date := floor_date(date)]
+us.wkly <- us.wkly[ , lapply(.SD, sum), by = .(floor_date), 
+                      .SDcols=c("new_cases", "new_deaths")]
 
 
 ###  FRONT PAGE QUICK UPDATE  ####

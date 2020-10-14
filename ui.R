@@ -191,6 +191,13 @@ fluidPage(title = "Worldwide COVID-19 Data Tracking App",
 		  ) # tab panel :: stuff goes here
 		), # navbarmenu :: the world
 
+
+
+
+
+
+
+
 ##################################### ###
 ###  UNITED STATES MENU & TAB PANEL  ####
 ###  MULTIPLE MENU ITEMS              ###
@@ -291,24 +298,38 @@ fluidPage(title = "Worldwide COVID-19 Data Tracking App",
 			  ), #layout
 			), # tab-"us rankings"
 			        
-###  US :: RANKINGS MENU ITEM AND TAB PANEL  ####
+###  US :: TRENDS MENU ITEM AND TAB PANEL  ####
 			tabPanel("US Trends", fluid = TRUE,
 					 h3("The States ranked:"),
 					 sidebarLayout(
 						 sidebarPanel(
 							 # shinythemes::themeSelector(),
 							 selectInput('us_type', p("Which Data? Cases or Deaths", style="font-size:13px"),
-													 c("Daily Cases" = "cases", "Daily Deaths" = "deaths")),
-							 width = 2
+							             c("Cases/100k" = "ccper100k", 
+							               "Deaths/100k" = "cdper100k", 
+							               "Cases Change" = "cc_pctchg", 
+							               "Deaths Change" = "cd_pctchg")
+							 ), width = 2
 						 ), # sidebarpanel
+						 
 						 mainPanel(
-						   h4("Overall Trend for the US :: Since 21 January 2020"),
-						   plotOutput('plot_us_trend_overall'),
+						   h4("US Trends :: Since 21 January 2020"),
+						   fluidRow(
+						      column(5, 
+						             h5("Daily New Cases"), 
+						             plotOutput('us_daily_cases')
+						             ), 
+						      column(5, 
+						             htmlOutput()
+						             )
+						   )
+						   plotOutput('plot_us_trend_daily'),
 						   # htmlOutput()
 
 						 )
 					 )
 			) #tabpanel us trends
+
 
 		),  # navbarmenu
              
