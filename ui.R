@@ -32,7 +32,7 @@ popsicle <- c("a big bunch of text explaning a thing or two about something or a
 fluidPage(title = "Worldwide COVID-19 Data Tracking App", 
           # themeSelector(), # turn this on to try different built in styles
   ### NAVBAR ####
-  navbarPage("COVID-19 DATA TRACKING", theme = shinytheme("simplex"), 
+  navbarPage("COVID-19 DATA TRACKING", theme = shinytheme("paper"), 
 		
 ############################ ###
 ###  HOME MENU & TAB PANEL  ####
@@ -276,7 +276,8 @@ fluidPage(title = "Worldwide COVID-19 Data Tracking App",
 			                        c("Cases/100k" = "ccper100k", 
 			                          "Deaths/100k" = "cdper100k", 
 			                          "Cases Change" = "cc_pctchg", 
-			                          "Deaths Change" = "cd_pctchg")
+			                          "Deaths Change" = "cd_pctchg", 
+			                          "Mortality Rate" = "mortality")
 			      ), width = 2
 			    ), #sidebar
 			    mainPanel(
@@ -287,47 +288,56 @@ fluidPage(title = "Worldwide COVID-19 Data Tracking App",
                  HTML("<b><sup>&dagger;</sup> Selected Metric is in first column.<br>
                       Selected Metric is sorted in descending order (highest value at the top).<br>
                       The data is current as of </b>", strong(HTML(display.date)))
-			        ), 
+			        ), #col1
 			        column(5, 
 	               h4("Chart for Selected Metric"), 
 	               plotOutput('plot_today_us_rank'), 
 	               htmlOutput('text_today_us_rank')
-			        )
-			      ) 
+			        ) #col2
+			      ) #row 
 			    ), #main
 			  ), #layout
 			), # tab-"us rankings"
 			        
 ###  US :: TRENDS MENU ITEM AND TAB PANEL  ####
 			tabPanel("US Trends", fluid = TRUE,
-					 h3("The States ranked:"),
-					 sidebarLayout(
-						 sidebarPanel(
-							 # shinythemes::themeSelector(),
-							 selectInput('us_type', p("Which Data? Cases or Deaths", style="font-size:13px"),
-							             c("Cases/100k" = "ccper100k", 
-							               "Deaths/100k" = "cdper100k", 
-							               "Cases Change" = "cc_pctchg", 
-							               "Deaths Change" = "cd_pctchg")
-							 ), width = 2
-						 ), # sidebarpanel
-						 
-						 mainPanel(
-						   h4("US Trends :: Since 21 January 2020"),
-						   fluidRow(
-						      column(5, 
-						             h5("Daily New Cases"), 
-						             plotOutput('us_daily_cases')
-						             ), 
-						      column(5, 
-						             htmlOutput()
-						             )
-						   )
-						   plotOutput('plot_us_trend_daily'),
-						   # htmlOutput()
+					 h3("The US Trending:"),
+					 
+					 # shinythemes::themeSelector(),
+					 selectInput('us_trend', p("Which Data? Cases or Deaths", style="font-size:13px"),
+					             c("Cases/100k" = "cases", 
+					               "Deaths/100k" = "deaths", 
+					               "Cases Change" = "cc_pctchg", 
+					               "Deaths Change" = "cd_pctchg")
+					 ),
+				 
+				 
+				 
+				   h4("US Trends :: Since 21 January 2020"),
+				   fluidRow(
+				     h4("States Trending"),
+				      column(6, 
+				             h5("Daily New Cases"), 
+				             plotOutput('us_daily_cases')
+				             ), 
+				      column(6, 
+				             h5("Discussion"),
+				             htmlOutput('us_daily_cases_text')
+				             )
+				   ),
+					 fluidRow(
+					   column(9, 
+					          ), #col1
+					   column(3, 
+					          selectInput('us_trend_table', p("Which Data? Cases or Deaths", style="font-size:13px"),
+					                      c("Cases/100k" = "cases", 
+					                        "Deaths/100k" = "deaths", 
+					                        "Cases Change" = "cc_pctchg", 
+					                        "Deaths Change" = "cd_pctchg"))
+					 ) #col2
+					 ) #row
 
-						 )
-					 )
+						 
 			) #tabpanel us trends
 
 

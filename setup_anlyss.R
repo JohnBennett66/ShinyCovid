@@ -217,6 +217,8 @@ setnafill(us.today, fill = 0, cols = 15:17)
 
 ##  TODAY'S DATA  ####
 us.today <- us.data[date == reporting.date]
+us.today[ , mortality := cum_deaths/cum_cases]
+setorder(us.today, -ccper100k)
 
 ##  US ALL UP FOR TRENDS ####
 us.allup <- us.data[ , lapply(.SD, sum), by = .(date), 
@@ -242,11 +244,12 @@ us.allup[cd_pctchg == "Inf", cd_pctchg := 0]
 
 
 ##  US TABLE :: TODAY  ####
-us.table <- us.today[ , .(state, ccper100k, cdper100k, cc_pctchg, cd_pctchg)]
+us.table <- us.today[ , .(state, ccper100k, cdper100k, cc_pctchg, cd_pctchg, mortality)]
 us.table[ , "Cases /100k" := comma(ccper100k, accuracy = 1)] 
 us.table[ , "Deaths /100k" := comma(cdper100k, accuracy = 1)] 
 us.table[ , "Cases Change" := percent(cc_pctchg, accuracy = 0.1)] 
 us.table[ , "Deaths Change" := percent(cd_pctchg, accuracy = 0.1)]
+us.table[ , "Mortality Rate" := percent(mortality, accuracy = 0.1)]
 setnames(us.table, 1, "State")
 setorder(us.table, -ccper100k)
 
@@ -255,11 +258,16 @@ setorder(us.table, -ccper100k)
 us.wkly <- us.data[ , lapply(.SD, sum), by = .(date), 
                     .SDcols=c("new_cases", "new_deaths", 
                               "cum_cases", "cum_deaths")]
-us.wkly[ , floor_date := floor_date(date)]
+us.wkly[ , floor_date := floor_date(date, "week")]
 us.wkly <- us.wkly[ , lapply(.SD, sum), by = .(floor_date), 
                       .SDcols=c("new_cases", "new_deaths")]
+us.weekly.cum <- us.allup[date %in% us.wkly[,floor_date], .(date, cum_cases, cum_deaths, pop, hundredk_pop)]
+us.wkly <- us.wkly[us.weekly.cum, on = .(floor_date = date)]
+remove(us.weekly.cum)
+us.wkly[ , nc_pctchg := ((new_cases - shift(new_cases,1))/shift(new_cases,1))]
+us.wkly[ , nd_pctchg := ((new_deaths - shift(new_deaths,1))/shift(new_deaths,1))]
 
-
+        
 ###  FRONT PAGE QUICK UPDATE  ####
 # world numbers
 world.cases <- world.data[date == reporting.date , sum(cum_cases)]
