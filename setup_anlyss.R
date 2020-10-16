@@ -298,12 +298,8 @@ world.deaths <- world.data[date == reporting.date , sum(cum_deaths)]
 world.cases.lastweek <- world.data[date == reporting.date -7 , sum(cum_cases)]
 world.deaths.lastweek <- world.data[date == reporting.date -7 , sum(cum_deaths)]
 world.pop <- p2020[, sum(pop)*10]
-<<<<<<< HEAD
-
 world.c100k.lastweek <-  world.data[date == reporting.date - 7 , sum(cum_cases)/world.pop]
 world.d100k.lastweek <-  world.data[date == reporting.date - 7 , sum(cum_deaths)/world.pop]
-
-=======
 world.ccper100k <- world.cases/world.pop
 world.cdper100k <- world.deaths/world.pop
 world.c100k.lastweek <-  world.data[date == reporting.date - 7 , sum(cum_cases)/world.pop]
@@ -312,7 +308,6 @@ world.cases.increase <- ((world.ccper100k - world.c100k.lastweek) /
                             world.c100k.lastweek) 
 world.deaths.increase <- ((world.cdper100k - world.d100k.lastweek) / 
                             world.d100k.lastweek) 
->>>>>>> ed1e91c8f1a5482123f7dcae3c7346a019f08b26
 
 
 
