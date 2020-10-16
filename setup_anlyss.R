@@ -203,6 +203,10 @@ us.data[ , cc_pctchg := (ccper100k-cc100k_lswk)/cc100k_lswk]
 us.data[ , cd_pctchg := (cdper100k-cd100k_lswk)/cd100k_lswk]
 setnafill(us.data, fill = 0, cols = 11:14)
 
+##  TODAY'S DATA  ####
+us.today <- us.data[date == reporting.date]
+us.today[ , mortality := cum_deaths/cum_cases]
+setorder(us.today, -ccper100k)
 # rolling averages
 # cases
 us.today[ , one_week_cases := frollmean(us.today[,new_cases], 7)]
@@ -215,10 +219,7 @@ us.today[ , three_week_cases := frollmean(us.today[,new_cases], 21)]
 # clear NAs
 setnafill(us.today, fill = 0, cols = 15:17)
 
-##  TODAY'S DATA  ####
-us.today <- us.data[date == reporting.date]
-us.today[ , mortality := cum_deaths/cum_cases]
-setorder(us.today, -ccper100k)
+
 
 ##  US ALL UP FOR TRENDS ####
 us.allup <- us.data[ , lapply(.SD, sum), by = .(date), 
@@ -267,7 +268,29 @@ remove(us.weekly.cum)
 us.wkly[ , nc_pctchg := ((new_cases - shift(new_cases,1))/shift(new_cases,1))]
 us.wkly[ , nd_pctchg := ((new_deaths - shift(new_deaths,1))/shift(new_deaths,1))]
 
-        
+##  WORLD ALL UP FOR TRENDS ####
+world.allup <- world.data[ , lapply(.SD, sum), by = .(date), 
+                     .SDcols=c("new_cases", "new_deaths", 
+                               "cum_cases", "cum_deaths")]
+world.allup[ , pop := p2020[country == "USA", pop]]
+world.allup[ , hundredk_pop := (pop * 10)]
+world.allup[ , ccper100k := cum_cases/hundredk_pop]
+world.allup[ , cdper100k := cum_deaths/hundredk_pop]
+world.allup[ , cc100k_lswk := shift(ccper100k, 7)]
+world.allup[ , cd100k_lswk := shift(cdper100k, 7)]
+setnafill(world.allup, fill = 0, cols = 10:11)
+world.allup[ , cc_pctchg := ((ccper100k - cc100k_lswk) / cc100k_lswk)]
+world.allup[ , cd_pctchg := ((cdper100k - cd100k_lswk) / cd100k_lswk)]
+setnafill(world.allup, fill = 0, cols = 12:13)
+world.allup[ , nc_chg := ((new_cases - shift(new_cases,1))/shift(new_cases,1))]
+world.allup[ , nd_chg := ((new_deaths - shift(new_deaths,1))/shift(new_deaths,1))]
+setnafill(world.allup, fill = 0, cols = 14:15)
+world.allup[nc_chg == "Inf", nc_chg := 0]
+world.allup[nd_chg == "Inf", nd_chg := 0]
+world.allup[cc_pctchg == "Inf", cc_pctchg := 0]
+world.allup[cd_pctchg == "Inf", cd_pctchg := 0]    
+
+
 ###  FRONT PAGE QUICK UPDATE  ####
 # world numbers
 world.cases <- world.data[date == reporting.date , sum(cum_cases)]
@@ -278,15 +301,7 @@ world.cases.increase <- ((world.cases - world.cases.lastweek) /
 world.deaths.lastweek <-  world.data[date == reporting.date - 7 , sum(cum_deaths)]
 world.deaths.increase <- ((world.deaths - world.deaths.lastweek) / 
                            world.deaths.lastweek) 
-world.summary <- world.data[, 
-                            lapply(.SD, sum), 
-                            by = .(date), 
-                            .SDcols = c("new_cases", "new_deaths", 
-                                        "cum_cases", "cum_deaths", 
-                                        "pop", "hundredk_pop")]
-world.summary[ , cases_per_100k := new_cases / hundredk_pop]
-world.summary[ , deaths_per_100k := new_deaths / hundredk_pop]
-world.summary[ , cases_lastweek := shift(new_cases, 7), by = .(date)]
+
 
 # us numbers
 us.cases <- us.allup[date == reporting.date, cum_cases]

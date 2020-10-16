@@ -115,7 +115,7 @@ output$us_growth_deaths_daily <- renderPlot( {
 ##  MAP PLOT VISUALS  ####
 # learn about data :: world cumulative rankings :: cum_cases|deaths :: world map plot
 output$plot_today_world <- renderPlot( {
-  if(input$world_type == 'cases') {
+  if(input$learn_type == 'cases') {
     ggplot(world.today, aes(fill = cum_cases)) + 
       geom_map(aes(map_id = country), map = map_w) + 
       expand_limits(x = map$long, y = map$lat) + 
@@ -128,7 +128,7 @@ output$plot_today_world <- renderPlot( {
             legend.position = "bottom", 
             panel.grid = element_line(colour = plot.back), 
             panel.background = element_rect(colour = plot.back, fill = plot.back)) 
-  } else if(input$world_type == 'deaths') {
+  } else if(input$learn_type == 'deaths') {
     ggplot(world.today, aes(fill = cum_deaths)) + 
       geom_map(aes(map_id = country), map = map_w) + 
       expand_limits(x = map$long, y = map$lat) + 
@@ -154,7 +154,7 @@ output$plot_today_world <- renderPlot( {
 
 # learn about data :: world cumulative per 100k rankings :: ccper100k|cdper100k :: world map plot
 output$plot_today_world_100k <- renderPlot( {
-  if(input$world_type == 'cases') {
+  if(input$learn_type == 'cases') {
     ggplot(world.today, aes(fill = ccper100k)) + 
       geom_map(aes(map_id = country), map = map_w) + 
       expand_limits(x = map$long, y = map$lat) + 
@@ -167,7 +167,7 @@ output$plot_today_world_100k <- renderPlot( {
             legend.position = "bottom", 
             panel.grid = element_line(colour = plot.back), 
             panel.background = element_rect(colour = plot.back, fill = plot.back)) 
-  } else if(input$world_type == 'deaths') {
+  } else if(input$learn_type == 'deaths') {
     ggplot(world.today, aes(fill = cdper100k)) + 
       geom_map(aes(map_id = country), map = map_w) + 
       expand_limits(x = map$long, y = map$lat) + 
@@ -193,7 +193,7 @@ output$plot_today_world_100k <- renderPlot( {
 
 # learn about data :: world per 100k percent change rankings :: cc_pctchg|cd_pctchg :: world map plot
 output$plot_today_world_100k_pctchg <- renderPlot( {
-  if(input$world_type == 'cases') {
+  if(input$learn_type == 'cases') {
     ggplot(world.today, aes(fill = cc_pctchg)) + 
       geom_map(aes(map_id = country), map = map_w) + 
       expand_limits(x = map_w$long, y = map_w$lat) + 
@@ -206,7 +206,7 @@ output$plot_today_world_100k_pctchg <- renderPlot( {
             legend.position = "bottom", 
             panel.grid = element_line(colour = plot.back), 
             panel.background = element_rect(colour = plot.back, fill = plot.back)) 
-  } else if(input$world_type == 'deaths') {
+  } else if(input$learn_type == 'deaths') {
     ggplot(world.today, aes(fill = cd_pctchg)) + 
       geom_map(aes(map_id = country), map = map_w) + 
       expand_limits(x = map$long, y = map$lat) + 
@@ -233,7 +233,7 @@ output$plot_today_world_100k_pctchg <- renderPlot( {
 ##  MAP PLOT TEXT ####
 # learn about data :: cumulative companion text 
 output$text_today_world <- renderUI( {
-  if(input$world_type == 'cases') {
+  if(input$learn_type == 'cases') {
     HTML("This chart can be misleading because it treats each country the same. 
     	We would expect countries with more people, i.e., a larger population, 
     	to have more cases or deaths than countries with fewer people. 
@@ -249,7 +249,7 @@ output$text_today_world <- renderUI( {
     	make too much difference because they have no numbers. 
     	These charts use shading to show which country has &#8220;the most&#8221;, 
     	where darker shading means more cases.")
-  } else if(input$world_type == 'deaths') {
+  } else if(input$learn_type == 'deaths') {
     HTML("As with the Cumulative Cases plot, this can also be misleading.")
   } else {
     HTML("THIS IS THE ERROR CASE :-(")
@@ -258,7 +258,7 @@ output$text_today_world <- renderUI( {
 
 # learn about data :: per 100k companion text 
 output$text_today_world_100k <- renderUI( {
-  if(input$world_type == 'cases') {
+  if(input$learn_type == 'cases') {
     HTML("Now we are looking at the rate of cases or the rate of deaths, 
          which is fairer and more accurate if we want to understand Covid; 
          what is happening?, where is it the worst?, where is it getting better?, 
@@ -268,7 +268,7 @@ output$text_today_world_100k <- renderUI( {
          have tested positive for COVID-19 per 100,000 people in that country&#8221;. 
          Now the US has many other countries that are also on the top end of the scale."
     )
-  } else if(input$world_type == 'deaths') {
+  } else if(input$learn_type == 'deaths') {
     HTML("Here we can see that the highest per capita death rates are in the Americas and Europe.")
   } else {
     HTML("THIS IS THE ERROR CASE :-(")
@@ -277,7 +277,7 @@ output$text_today_world_100k <- renderUI( {
 
 # learn about data :: percent change companion text 
 output$text_today_world_100k_pctchg <- renderUI( {
-  if(input$world_type == 'cases') {
+  if(input$learn_type == 'cases') {
     HTML("In this chart we are looking at the percentage of change between a countries 
                       &#8220;rate of cases per 100,000 people last week&#8221; <br> 
                       and that same rate this week. This shows us where it is getting worse and 
@@ -286,7 +286,7 @@ output$text_today_world_100k_pctchg <- renderUI( {
                       in a negative direction.
                       <br><br>")
     
-  } else if(input$world_type == 'deaths') {
+  } else if(input$learn_type == 'deaths') {
     HTML("And this is the countries with the highest percentage change in their per capita death rate 
          in the last week.")
   } else {
@@ -317,13 +317,102 @@ output$ed_weekly_line <- renderPlot( {
 
 
 
-
-
 ##  TEXT COMPARISONS  ####
 
+
+############################# ###  
+############################# ###
+###  END OF LEARNING SECTION  ###
+############################# ###
+############################# ###
+
+
+
+################ ###
+###  THE WORLD  ####
+################ ###
+
+############### ###
+###  OVERVIEW  ####
+############### ###
+
+##  MAP PLOT VISUALS  ####
+
+# WORLD :: OVERVIEW :: PER 100K :: CASES AND DEATHS :: 'US_TYPE' 
+output$plot_overview_world_100k <- renderPlot( {
   
+  if(input$world_type == 'cases') {
+    ggplot(world.today, aes(fill = ccper100k)) + 
+      geom_map(aes(map_id = country), map = map_w) + 
+      expand_limits(x = map_w$long, y = map_w$lat) + 
+      scale_fill_continuous(low = cases.low, high = cases.main, 
+                            name = "Cumulative Cases", 
+                            label = label_number_si()) + 
+      theme(axis.text = element_blank(),
+            axis.title = element_blank(),
+            axis.ticks = element_blank(),            
+            legend.position = "bottom", 
+            panel.grid = element_line(colour = plot.back), 
+            panel.background = element_rect(colour = plot.back, fill = plot.back)) 
+  } else if(input$world_type == 'deaths') {
+    ggplot(world.today, aes(fill = cdper100k)) + 
+      geom_map(aes(map_id = country), map = map_w) + 
+      expand_limits(x = map_w$long, y = map_w$lat) + 
+      scale_fill_continuous(low = deaths.low, high = death.main, 
+                            name = "Cumulative Deaths", 
+                            label = label_number_si()) + 
+      theme(axis.text = element_blank(),
+            axis.title = element_blank(),
+            axis.ticks = element_blank(),            
+            legend.position = "bottom", 
+            panel.grid = element_line(colour = plot.back), 
+            panel.background = element_rect(colour = plot.back, fill = plot.back))
+  } else {
+    ggplot(mtcars) + 
+      geom_point(aes(x = drat, y = wt)) + 
+      labs(x = "", y = "") + 
+      annotate("text", x = 3.75, y = 3.5, 
+               size = 16, color = "red",
+               label = "SOMETHING HAS GONE WRONG")
+  } 
+  
+}, width = 500, height = 325 ) # output$plot_today_world
 
+###  THE TEXT  ####
 
+###  WORLD :: OVERVIEW :: PER 100K :: CASES AND DEATHS :: 'US_TYPE'
+output$text_overview_world_100k <- renderUI( { 
+  if(input$world_type == 'cases') { 
+    HTML("Here we are looking at the rate of cases. This means the number of cases per
+         100,000 people (in this case, it could be 10,000 or 1,000,000 or any number). 
+         This compares all the countries evenly (fairly). The darker countries have more cases 
+         (per 100,000 people) than the lighter countries. More cases (per capita*) means 
+         one or more of these; 
+           <ul>
+           <li>less control of the spread of the virus</li>
+           <li>less recognition of the problem (not enough testing)</li>
+           <li>unaware of the problem/risk</li>
+           </ul>
+         We should expect the rate of cases to be fairly constant if an area has a good
+         systems of control in place. There will always be some cases. <br>
+         <br>
+         * &#34;per capita&#34; means the same as &#34;per 100,000 people&#34;"
+    )
+  } else if(input$world_type == 'deaths') { 
+    HTML("These are the number of deaths per 100,000 people in each country. 
+           The darker countries have more deaths (per 100,000 people) than the 
+           lighter countries. More deaths (per capita*) means one or more of these; 
+           <ul>
+           <li>excessive cases beyond hospital capacity</li>
+           <li>less familiarity with the most effective treatment protocols</li>
+           <li>reluctance/unability of population to seek treatment</li>
+           </ul> 
+           next
+          <br>
+          * &#34;per capita&#34; means the same as &#34;per 100,000 people&#34;"
+    )
+  }
+} )  # output$text_overview_us_100k 
 
 
 
@@ -444,19 +533,24 @@ output$text_overview_us_100k <- renderUI( {
            <li>less recognition of the problem (not enough testing)</li>
            <li>unaware of the problem/risk</li>
            </ul>
-         We should expect the rate of cases to be fairly constant if an area has good
+         We should expect the rate of cases to be fairly constant if an area has a good
          systems of control in place. There will always be some cases. <br>
          <br>
-         * &ldqou;per capita&rdqou; means the same as &ldqou;per 100,000 people&rdqou;"
+         * &#34;per capita&#34; means the same as &#34;per 100,000 people&#34;"
     )
   } else if(input$us_type == 'deaths') { 
     HTML("These are the number of deaths per 100,000 people in each state. 
            The darker states have more deaths (per 100,000 people) than the 
-           lighter states. More deaths (per capita*) means one or more of these 
+           lighter states. More deaths (per capita*) means one or more of these; 
            <ul>
-           <li>less control of the spread of the virus</li>
+           <li>excessive cases beyond hospital capacity</li>
+           <li>less familiarity with the most effective treatment protocols</li>
+           <li>reluctance/unability of population to seek treatment</li>
            </ul> 
-           next")
+           next
+          <br>
+          * &#34;per capita&#34; means the same as &#34;per 100,000 people&#34;"
+    )
   }
 } )  # output$text_overview_us_100k 
 
@@ -629,24 +723,24 @@ output$us_daily_cases <- renderPlot( {
       geom_line(aes(x = floor_date, y = nc_pctchg), 
                 colour = cases.main) + 
       scale_x_date(date_breaks = "1 months") + 
-      scale_y_continuous(labels = comma) + 
+      scale_y_continuous(labels = percent) + 
       theme(axis.text.x = element_text(angle = 90), 
             plot.background = element_rect(colour = plot.back, fill = plot.back), 
             panel.background = element_rect(colour = plot.back, fill = plot.back), 
             panel.grid = element_line(colour = lines)) + 
-      labs(y = "Weekly Total New Cases", 
+      labs(y = "Weekly Percent Change in New Cases", 
            x = "") 
   } else if(input$us_trend == "cd_pctchg")  { 
     ggplot(us.wkly[1:(nrow(us.wkly)-1)]) + 
       geom_line(aes(x = floor_date, y = nd_pctchg), 
                 colour = death.main) + 
       scale_x_date(date_breaks = "1 months") + 
-      scale_y_continuous(labels = comma) + 
+      scale_y_continuous(labels = percent) + 
       theme(axis.text.x = element_text(angle = 90), 
             plot.background = element_rect(colour = plot.back, fill = plot.back), 
             panel.background = element_rect(colour = plot.back, fill = plot.back), 
             panel.grid = element_line(colour = lines)) + 
-      labs(y = "Weekly Total New Cases", 
+      labs(y = "Weekly Percent Change in New Deaths", 
            x = "") 
   } 
   
@@ -660,27 +754,92 @@ output$us_daily_cases <- renderPlot( {
 ################## ###
 
 output$us_daily_cases_text <- renderUI( {
-  
-  HTML("This chart shows weekly total new cases for the United States. <br>
-       It shows that once cases began in the US, they rose to an initial <br>
-       peak and than began a decline, but in June began to rise again to a <br>
-       new, higher peak in July. Once again there was a decline, but since <br>
-       the beginning of September they have started to rise again.<br>
-       There are some things to note here: 
-       <ul>
-       <li>In April, only 13 states had cumulative cases over 10,000</li>
-       <li>In June, when cases rise, 33 states had over 10,000 cases <br> 
-            and 5 states have over 100,000</li>
-       <li>By the time the second peak crests, 42 states had over 10,000 cases <br> 
-            and 10 states had over 100,000</li>
-       <li>We can presume that the initial peak was a result of a new virus, <br> 
-            with no clear treatment protocal, getting out of hand in the <br> 
-            first few places it took hold</li>
-       <li>We can presume that the second peak was a result of the virus now <br> 
-            being in most states and having hit its initial peak of transmission</li>
-       </ul>")
+  if(input$us_trend == 'cases') {
+    HTML("This chart shows weekly total new cases for the United States. <br>
+         It shows that once cases began in the US, they rose to an initial <br>
+         peak and than began a decline, but in June began to rise again to a <br>
+         new, higher peak in July. Once again there was a decline, but since <br>
+         the beginning of September they have started to rise again.<br>
+         There are some things to note here: 
+         <ul>
+         <li>In April, only 13 states had cumulative cases over 10,000</li>
+         <li>In June, when cases rise, 33 states had over 10,000 cases <br> 
+              and 5 states have over 100,000</li>
+         <li>By the time the second peak crests, 42 states had over 10,000 cases <br> 
+              and 10 states had over 100,000</li>
+         <li>We can presume that the initial peak was a result of a new virus, <br> 
+              with no clear treatment protocal, getting out of hand in the <br> 
+              first few places it took hold</li>
+         <li>We can presume that the second peak was a result of the virus now <br> 
+              being in most states and having hit its initial peak of transmission</li>
+         </ul>") 
+  } else if(input$us_trend == 'deaths') {
+    HTML("This chart shows weekly total new deaths for the United States. <br>
+         It shows that once cases began in the US, they rose to an initial <br>
+         peak and than began a decline, but unlike new cases there has not been <br>
+         a second peak. We can presume that this is because in the beginning <br> 
+         the appropriate treatment protocol was unknown and because the <br> 
+         healthcare system had not seen the full range of symptoms and distress. <br> 
+         Since, 15 May 2020 the weekly deaths have stayed in a range between <br> 
+         4,000 and 8,500. 
+         Here are some things to note: 
+         <ul>
+         <li>In mid-April, only 1 states had cumulative deaths over 10,000</li>
+         <li>In June, when cases rise, 33 states had over 10,000 cases <br> 
+              and 5 states have over 100,000</li>
+         <li>After 15 May 2020, the weekly average is 5,789 new deaths</li>
+         <li>After 15 May 2020, there is one death for each 51 cases on average</li>
+         <li>If weekly cases grow too high, then we can expect deaths to exceed <br> 
+              the current 8,500 per week ceiling</li>
+         <li>We can presume that the initial peak was a result of a new virus, <br> 
+              with no clear treatment protocal, getting out of hand in the <br> 
+              first few places it took hold</li>
+         </ul>")
+  } else if(input$us_trend == 'cc_pctchg') { 
+    HTML("The percent change in new cases each week has become fairly consistent <br> 
+         after bouncing around a lot in the first couple months. However this is a <br> 
+         bit misleading becasue it flattens the volitilty of the later months. <br> 
+         Below is a chart showing this detail. As you can see there is still a week <br> 
+         with %50 change, and that is quite a bit.")
+  } else if(input$us_trend == 'cd_pctchg') { 
+    HTML("The percent change in new deaths each week has become fairly consistent <br> 
+         after bouncing around some in the first couple months. However this is a <br> 
+         bit misleading becasue it flattens the volitilty of the later months. <br> 
+         Below is a chart showing this detail. As you can see there are still weeks <br> 
+         with over %30 change, and that is quite a bit.")  
+    }
   
 })
+
+
+output$cases_percent_detail <- renderPlot( { 
+  if(input$us_trend == 'cc_pctchg') { 
+    ggplot(us.wkly[10:(nrow(us.wkly)-1)]) + 
+      geom_line(aes(x = floor_date, y = nc_pctchg), 
+                colour = cases.main) + 
+      scale_x_date(date_breaks = "1 months") + 
+      scale_y_continuous(labels = percent) + 
+      labs(y = "Weekly Percent Change in Cases", 
+           x = "") + 
+      theme(axis.text.x = element_text(angle = 90), 
+            panel.grid = element_line(color = lines),
+            plot.background = element_rect(colour = plot.back, fill = plot.back), 
+            panel.background = element_rect(colour = plot.back, fill = plot.back))
+  } else if(input$us_trend == 'cd_pctchg') {
+    ggplot(us.wkly[13:(nrow(us.wkly)-1)]) + 
+      geom_line(aes(x = floor_date, y = nd_pctchg), 
+                colour = death.main) + 
+      scale_x_date(date_breaks = "1 months") + 
+      scale_y_continuous(labels = percent) + 
+      labs(y = "Weekly Percent Change in Deaths", 
+           x = "") + 
+      theme(axis.text.x = element_text(angle = 90), 
+            panel.grid = element_line(color = lines),
+            plot.background = element_rect(colour = plot.back, fill = plot.back), 
+            panel.background = element_rect(colour = plot.back, fill = plot.back))
+    }
+  }, width = 400, height = 200)
+
 
 
 #===============================================================================

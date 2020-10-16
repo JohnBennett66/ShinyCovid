@@ -50,8 +50,9 @@ fluidPage(title = "Worldwide COVID-19 Data Tracking App",
     			I hope you find this useful. <br>
     			 - John Bennett <br>
     			 <br><br>
-    			 <h4><b>NOTE: </b>This is a new version and is not 100% finished. Sorry if anything 
-    			     does not work. Also, check back regularly to see new updates.</h4>"),
+    			 <h5><b>NOTE: </b>This is a new version and is not 100% finished. Sorry if anything 
+    			     does not work. Also, check back regularly to see new updates. 
+    			     <b style='color:rgb(33, 150, 243)'>v2.0::released::16 Oct 2020</b></h5>"),
 		    ), # column one
 
  ###  MENU LEGEND  ####
@@ -138,7 +139,7 @@ fluidPage(title = "Worldwide COVID-19 Data Tracking App",
 				sidebarLayout(
   				sidebarPanel(
 					  # shinythemes::themeSelector(), # for choosing new themes
-					  selectInput('world_type', 
+					  selectInput('learn_type', 
 					              HTML("Which Data Should We Use? <p>Cases or Deaths?</p>"),
 					              c("Cases" = "cases", "Deaths" = "deaths")),
 					  width = 2
@@ -179,7 +180,12 @@ fluidPage(title = "Worldwide COVID-19 Data Tracking App",
 						)
 					) # mainpanel :: cases/deaths 
 				) # sidebarlayout
-			) #tabpanel :: where are we
+			), #tabpanel :: learn about the data
+			
+			tabPanel("Learn About Visualizations", fluid = TRUE, 
+			         h3("Learn About How Charts, Graphs, and Plots Help Make Data Understandable :: COMING SOON")
+			  
+			) #tabpanel :: learn about visualizations
 		),  # navbarmenu :: education
 
 ############################# ###
@@ -187,8 +193,142 @@ fluidPage(title = "Worldwide COVID-19 Data Tracking App",
 ###  MULTIPLE MENU ITEMS      ###
 ############################# ###
 		navbarMenu(icon("globe", class = NULL, lib = "font-awesome"),
-		  tabPanel("stuff goes here", fluid = TRUE 
-		  ) # tab panel :: stuff goes here
+     tabPanel("Overview", fluid = TRUE,
+        h3("The Worldwide Overview"),
+        sidebarLayout(
+          sidebarPanel(
+            # shinythemes::themeSelector(),
+            selectInput('world_type', p("Which Data? Cases or Deaths", style="font-size:13px"),
+                        c("Daily Cases" = "cases", "Daily Deaths" = "deaths")
+            ),
+            width = 2
+          ), # sidebarpanel
+        mainPanel(
+          h4("Cumulative Cases per 100,000 Population"),
+          fluidRow(style="height:350px",
+                   column(5, style="height:350px",
+                          plotOutput('plot_overview_world_100k'),
+                   ),
+                   column(5, style="height:350px",
+                          htmlOutput('text_overview_world_100k'),
+                   )
+          ),
+          h4("Overview for the World Overall"),
+            fluidRow(style="height:150px",
+              column(5, style="height:150px",
+                div(class = "row", style = "width: 500px", style = "height: 50px",
+                  HTML("<h5><strong>The World</strong></h5>"),
+                  HTML("Cumulative Cases ::  "), strong(HTML(comma(world.cases))),
+                  HTML(" &nbsp;&nbsp;==>>&nbsp;&nbsp; Weekly Increase ::  "),
+                  strong(HTML(percent(world.cases.increase, accuracy = 0.01))), br(),
+                  HTML("Cumulative Deaths ::  "), strong(HTML(comma(world.deaths))),
+                  HTML(" &nbsp;&nbsp;==>>&nbsp;&nbsp; Weekly Increase ::  "),
+                  strong(HTML(percent(world.deaths.increase, accuracy = 0.01))), br(),
+                  HTML("Cases per 100,000 People ::  "),
+                  strong(HTML(comma(world.allup[date == reporting.date, ccper100k]))),
+                  HTML(" &nbsp;&nbsp;==>>&nbsp;&nbsp; Weekly Increase ::  "),
+                  strong(HTML(percent(world.allup[date == reporting.date, cc_pctchg]))), br(),
+                  HTML("Deaths per 100,000 People ::  "),
+                  strong(HTML(comma(world.allup[date == reporting.date, cdper100k]))),
+                  HTML(" &nbsp;&nbsp;==>>&nbsp;&nbsp; Weekly Increase ::  "),
+                  strong(HTML(percent(world.allup[date == reporting.date, cd_pctchg])))
+                  ),br(),
+
+
+                           ),
+                           column(5, style="height:150px",
+                                  HTML("other stuff :: coming soon")
+                           )
+                  ),
+                  HTML("<strong>NOTE: </strong>The percent change is week over week. <br>
+  			The formula :: ( (today&lsquo;s value - last week&lsquo;s value) &#247;
+  			last week&lsquo;s value). <br>
+  			Also, not all terms are used technically. This is for a lay audience and <br>
+  			often uses terms colloquially to faciliate understanding for the target audience.
+  			<br> <br>"
+                  )
+                ) # mainpanel
+              ) # sidebarlayout
+     )#, #tabpanel :: overview
+
+  #    ###  WORLD :: MENU DIVIDER  ####
+  #    '------',
+  #    
+  #    ###  WORLD :: RANKINGS MENU ITEM AND TAB PANEL  ####
+  #    tabPanel("World Rankings", fluid = TRUE, 
+  #             # shinythemes::themeSelector(),
+  #             sidebarLayout(
+  #               sidebarPanel(
+  #                 selectInput('world_rank', 
+  #                             p("Select Sort Order", style="font-size:13px"),
+  #                             c("Cases/100k" = "ccper100k", 
+  #                               "Deaths/100k" = "cdper100k", 
+  #                               "Cases Change" = "cc_pctchg", 
+  #                               "Deaths Change" = "cd_pctchg", 
+  #                               "Mortality Rate" = "mortality")
+  #                 ), width = 2
+  #               ), #sidebar
+  #               mainPanel(
+  #                 fluidRow(
+  #                   column(5, 
+  #                          HTML("<h4>Statistics Sorted by Selected Metric<sup>&dagger;</sup></h4>"), 
+  #                          tableOutput('world_ranking'), 
+  #                          HTML("<b><sup>&dagger;</sup> Selected Metric is in first column.<br>
+  #           Selected Metric is sorted in descending order (highest value at the top).<br>
+  #           The data is current as of </b>", strong(HTML(display.date)))
+  #                   ), #col1
+  #                   column(5, 
+  #                          h4("Chart for Selected Metric"), 
+  #                          plotOutput('plot_today_world_rank'), 
+  #                          htmlOutput('text_today_world_rank')
+  #                   ) #col2
+  #                 ) #row 
+  #               ), #main
+  #             ), #layout
+  #    ), # tab-"us rankings"
+  #    
+  #    ###  US :: TRENDS MENU ITEM AND TAB PANEL  ####
+  #    tabPanel("US Trends", fluid = TRUE,
+  #             h3("The World Trending:"),
+  #             
+  #             # shinythemes::themeSelector(),
+  #             selectInput('world_trend', p("Which Data? Cases or Deaths", style="font-size:13px"),
+  #                         c("Cases/100k" = "cases", 
+  #                           "Deaths/100k" = "deaths", 
+  #                           "Cases Change" = "cc_pctchg", 
+  #                           "Deaths Change" = "cd_pctchg")
+  #             ),
+  #             
+  #             
+  #             
+  #             h4("US Trends :: Since 21 January 2020"),
+  #             fluidRow(
+  #               h4("States Trending"),
+  #               column(6, 
+  #                      h5("Daily"), 
+  #                      plotOutput('world_daily_cases')
+  #               ), 
+  #               column(6, 
+  #                      h5("Discussion"),
+  #                      htmlOutput('world_daily_cases_text'),
+  #                      plotOutput('world_cases_percent_detail')
+  #               )
+  #             ),
+  #             fluidRow(
+  #               column(9, 
+  #               ), #col1
+  #               column(3, 
+  #                      selectInput('world_trend_table', p("Which Data? Cases or Deaths", style="font-size:13px"),
+  #                                  c("Cases/100k" = "cases", 
+  #                                    "Deaths/100k" = "deaths", 
+  #                                    "Cases Change" = "cc_pctchg", 
+  #                                    "Deaths Change" = "cd_pctchg"))
+  #               ) #col2
+  #             ) #row
+  #             
+  #             
+  #    ) #tabpanel us trends
+  #            
 		), # navbarmenu :: the world
 
 
@@ -225,7 +365,10 @@ fluidPage(title = "Worldwide COVID-19 Data Tracking App",
     						htmlOutput('text_overview_us_100k'),
     					) 
 						),
-						h4("Overview for the US Overall"),
+						fluidRow(style="height:40px", 
+						         column(5, h4("Overview for the US Overall")),
+						         column(5, h4("Overview for State Rankings")),
+						), # row :: headlines
 						fluidRow(style="height:150px", 
 						  column(5, style="height:150px", 
 				         div(class = "row", style = "width: 500px", style = "height: 50px",
@@ -249,13 +392,14 @@ fluidPage(title = "Worldwide COVID-19 Data Tracking App",
 						         
 						         ),
 						  column(5, style="height:150px", 
-						         HTML("other stuff")
+						         HTML("Top States :: Coming Soon")
 						         )
 						),
+						hr(style="border-top-color:rgb(33,150,243)"),
 						HTML("<strong>NOTE: </strong>The percent change is week over week. <br>  
 									The formula :: ( (today&lsquo;s value - last week&lsquo;s value) &#247; 
 									last week&lsquo;s value). <br> 
-									Also, not all terms are used technically. This is for a lay audience and <br> 
+									Also, not all terms are used technically. This app is for a lay audience and <br> 
 									often uses terms colloquially to faciliate understanding for the target audience. 
 									<br> <br>"
 						)
@@ -287,12 +431,11 @@ fluidPage(title = "Worldwide COVID-19 Data Tracking App",
                  tableOutput('us_ranking'), 
                  HTML("<b><sup>&dagger;</sup> Selected Metric is in first column.<br>
                       Selected Metric is sorted in descending order (highest value at the top).<br>
-                      The data is current as of </b>", strong(HTML(display.date)))
+                      The data is current as of ", display.date,"</b><br><br>")
 			        ), #col1
 			        column(5, 
 	               h4("Chart for Selected Metric"), 
-	               plotOutput('plot_today_us_rank'), 
-	               htmlOutput('text_today_us_rank')
+	               plotOutput('plot_today_us_rank')
 			        ) #col2
 			      ) #row 
 			    ), #main
@@ -309,7 +452,7 @@ fluidPage(title = "Worldwide COVID-19 Data Tracking App",
 					               "Deaths/100k" = "deaths", 
 					               "Cases Change" = "cc_pctchg", 
 					               "Deaths Change" = "cd_pctchg")
-					 ),
+					 ), 
 				 
 				 
 				 
@@ -317,12 +460,13 @@ fluidPage(title = "Worldwide COVID-19 Data Tracking App",
 				   fluidRow(
 				     h4("States Trending"),
 				      column(6, 
-				             h5("Daily New Cases"), 
+				             h5("Daily"), 
 				             plotOutput('us_daily_cases')
 				             ), 
 				      column(6, 
 				             h5("Discussion"),
-				             htmlOutput('us_daily_cases_text')
+				             htmlOutput('us_daily_cases_text'),
+				             plotOutput('cases_percent_detail')
 				             )
 				   ),
 					 fluidRow(
