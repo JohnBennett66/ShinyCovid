@@ -10,7 +10,7 @@ library(shiny)
 library(ggplot2)
 library(ggrepel)
 library(stringr)
-library(wbstats)
+# library(wbstats)
 library(dplyr)
 library(data.table)
 library(lubridate)
@@ -214,29 +214,27 @@ fluidPage(title = "Worldwide COVID-19 Data Tracking App",
                    )
           ),
           h4("Overview for the World Overall"),
-            fluidRow(style="height:150px",
-              column(5, style="height:150px",
+            fluidRow(style="height:200px",
+              column(5, style="height:200px",
                 div(class = "row", style = "width: 500px", style = "height: 50px",
                   HTML("<h5><strong>The World</strong></h5>"),
-                  HTML("Cumulative Cases ::  "), strong(HTML(comma(world.cases))),
-                  HTML(" &nbsp;&nbsp;==>>&nbsp;&nbsp; Weekly Increase ::  "),
-                  strong(HTML(percent(world.cases.increase, accuracy = 0.01))), br(),
-                  HTML("Cumulative Deaths ::  "), strong(HTML(comma(world.deaths))),
-                  HTML(" &nbsp;&nbsp;==>>&nbsp;&nbsp; Weekly Increase ::  "),
-                  strong(HTML(percent(world.deaths.increase, accuracy = 0.01))), br(),
-                  HTML("Cases per 100,000 People ::  "),
-                  strong(HTML(comma(world.allup[date == reporting.date, ccper100k]))),
-                  HTML(" &nbsp;&nbsp;==>>&nbsp;&nbsp; Weekly Increase ::  "),
-                  strong(HTML(percent(world.allup[date == reporting.date, cc_pctchg]))), br(),
-                  HTML("Deaths per 100,000 People ::  "),
-                  strong(HTML(comma(world.allup[date == reporting.date, cdper100k]))),
-                  HTML(" &nbsp;&nbsp;==>>&nbsp;&nbsp; Weekly Increase ::  "),
-                  strong(HTML(percent(world.allup[date == reporting.date, cd_pctchg])))
+                  HTML("<h6>Cumulative Data</h6>"), 
+                  HTML("Cases ::  "), strong(HTML(comma(world.cases))), 
+                    HTML(" &nbsp;&nbsp;==>>&nbsp;&nbsp; Last Week"), strong(HTML(comma(world.cases.lastweek))), br(),
+                  HTML("Deaths ::  "), strong(HTML(comma(world.deaths))), 
+                    HTML(" &nbsp;&nbsp;==>>&nbsp;&nbsp; Last Week"), strong(HTML(comma(world.deaths.lastweek))), br(), 
+                  HTML("Cases/100k People :: "), strong(HTML(comma(world.cases/world.pop))), 
+                    HTML(" &nbsp;&nbsp;==>>&nbsp;&nbsp; Weekly Increase ::  "),
+                    strong(HTML(percent(world.cases.increase, accuracy = 0.01))), br(),
+                  HTML("Deaths/100k People :: "), strong(HTML(comma(world.cdper100k))), 
+                    HTML(" &nbsp;&nbsp;==>>&nbsp;&nbsp; Weekly Increase ::  "), 
+                    strong(HTML(percent(world.cases.increase, accuracy = 0.01))), br(),
+                  
                   ),br(),
 
 
                            ),
-                           column(5, style="height:150px",
+                           column(5, style="height:200px",
                                   HTML("other stuff :: coming soon")
                            )
                   ),

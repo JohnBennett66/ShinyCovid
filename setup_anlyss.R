@@ -14,7 +14,7 @@ library(shiny)
 library(ggplot2)
 library(ggrepel)
 library(stringr)
-library(wbstats)
+# library(wbstats)
 library(dplyr)
 library(data.table)
 library(lubridate)
@@ -272,7 +272,7 @@ us.wkly[ , nd_pctchg := ((new_deaths - shift(new_deaths,1))/shift(new_deaths,1))
 world.allup <- world.data[ , lapply(.SD, sum), by = .(date), 
                      .SDcols=c("new_cases", "new_deaths", 
                                "cum_cases", "cum_deaths")]
-world.allup[ , pop := p2020[country == "USA", pop]]
+world.allup[ , pop := p2020[, sum(pop)]]
 world.allup[ , hundredk_pop := (pop * 10)]
 world.allup[ , ccper100k := cum_cases/hundredk_pop]
 world.allup[ , cdper100k := cum_deaths/hundredk_pop]
@@ -295,12 +295,18 @@ world.allup[cd_pctchg == "Inf", cd_pctchg := 0]
 # world numbers
 world.cases <- world.data[date == reporting.date , sum(cum_cases)]
 world.deaths <- world.data[date == reporting.date , sum(cum_deaths)]
-world.cases.lastweek <-  world.data[date == reporting.date - 7 , sum(cum_cases)]
-world.cases.increase <- ((world.cases - world.cases.lastweek) / 
-                           world.cases.lastweek) 
-world.deaths.lastweek <-  world.data[date == reporting.date - 7 , sum(cum_deaths)]
-world.deaths.increase <- ((world.deaths - world.deaths.lastweek) / 
-                           world.deaths.lastweek) 
+world.cases.lastweek <- world.data[date == reporting.date -7 , sum(cum_cases)]
+world.deaths.lastweek <- world.data[date == reporting.date -7 , sum(cum_deaths)]
+world.pop <- p2020[, sum(pop)*10]
+world.ccper100k <- world.cases/world.pop
+world.cdper100k <- world.deaths/world.pop
+world.c100k.lastweek <-  world.data[date == reporting.date - 7 , sum(cum_cases)/world.pop]
+world.d100k.lastweek <-  world.data[date == reporting.date - 7 , sum(cum_deaths)/world.pop]
+world.cases.increase <- ((world.ccper100k - world.c100k.lastweek) / 
+                            world.c100k.lastweek) 
+world.deaths.increase <- ((world.cdper100k - world.d100k.lastweek) / 
+                            world.d100k.lastweek) 
+
 
 
 # us numbers
