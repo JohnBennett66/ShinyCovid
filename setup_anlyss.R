@@ -342,7 +342,9 @@ setorder(us.today, -new_deaths)
 us.top.newdeaths <- us.today[1:10, .(state,new_deaths)]
 setnames(us.top.newdeaths, c("State","New Deaths"))
 
-
+##  WIDE TO LONG US.DATA TABLE  ##
+# wide to long melt
+us.data.long <- melt(us.data, id.vars = c("date", "state"), measure.vars = c("ccper100k","cdper100k","cc_pctchg","cd_pctchg"))
 
 
 

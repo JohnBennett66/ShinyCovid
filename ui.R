@@ -52,7 +52,7 @@ fluidPage(title = "Worldwide COVID-19 Data Tracking App",
     			 <br><br>
     			 <h5><b>NOTE: </b>This is a new version and is not 100% finished. Sorry if anything 
     			     does not work. Also, check back regularly to see new updates. 
-    			     <b style='color:rgb(33, 150, 243)'>v2.0::released::16 Oct 2020</b></h5>"),
+    			     <b style='color:rgb(33, 150, 243)'>v2.1::released::20 Oct 2020</b></h5>"),
 		    ), # column one
 
  ###  MENU LEGEND  ####
@@ -66,10 +66,12 @@ fluidPage(title = "Worldwide COVID-19 Data Tracking App",
 			    HTML("&nbsp;&nbsp;"), icon("globe"), HTML(":&nbsp;&nbsp;The <b>World</b> Page 
 			                        (Worldwide data; overview, ranking, trends, comparisons)"), br(),
 			    HTML("&nbsp;&nbsp;"), icon("flag-usa"), HTML(":&nbsp;&nbsp;The <b>United States</b> Page 
-			                           (United States data; overview, rankings, trends, compaisons)"), br(),
-			    HTML("&nbsp;&nbsp;"), icon("disease"), 
-			        HTML(":&nbsp;&nbsp;The <b>Other Diseases</b> Page (all diseases data; overview, 
-			             rankings, trends, compaisons<sup>&dagger;</sup>)"), br(),
+			                           (United States data; overview, rankings, trends, comparisons)"), br(),
+			    HTML("&nbsp;&nbsp;"), icon("flag"), HTML(":&nbsp;&nbsp;The <b>States</b> Page 
+			                           (States data; overview, rankings, trends, comparisons)"), br(),
+			    # HTML("&nbsp;&nbsp;"), icon("disease"), 
+			    #     HTML(":&nbsp;&nbsp;The <b>Other Diseases</b> Page (all diseases data; overview, 
+			    #          rankings, trends, compaisons<sup>&dagger;</sup>)"), br(),
 			    HTML("&nbsp;&nbsp;<strong>About:</strong>&nbsp;&nbsp;The <b>About</b> Page 
 			         (about the data and the author, including links)"), br(),
 			    HTML("&nbsp;&nbsp;&nbsp;&nbsp;<sup>*</sup> <u>metrics</u>::data is something like 'the 
@@ -498,10 +500,26 @@ fluidPage(title = "Worldwide COVID-19 Data Tracking App",
 
 
 		),  # navbarmenu
-    navbarMenu(
-      
-    ),
-             
+    
+    navbarMenu(icon("flag", class = NULL, lib = "font-awesome"),
+      tabPanel("States Overview", fluid = TRUE,
+        sidebarLayout(
+          sidebarPanel(
+            selectInput("states_overview",
+                       p("Pick a Metric", style="font-size:10px"),
+                       c("Cases/ 100k" = "cases",
+                         "Deaths/ 100k" = "deaths",
+                         "Cases Change" = "cc_pctchg",
+                         "Deaths Change" = "cd_pctchg")
+          ), width = 1
+          ), #sidebarpanel
+          mainPanel(
+            plotOutput('all_fifty')
+          ), # main
+        ), # sidebarlayout
+      ) # tab-"state comparison"
+    ), #navbarmenu states
+
     tabPanel("About", fluid = TRUE,
 			mainPanel(
 				h3("About the Data"),
@@ -526,7 +544,13 @@ fluidPage(title = "Worldwide COVID-19 Data Tracking App",
 				p("Twitter ::  @john_bennett"),
 				p("LinkedIn :: https://www.linkedin.com/in/johnbennett/"),
 				p(),
-				p("This app can also be reached at ",a(href="http://bit.ly/jb66ct", "bit.ly/jb66ct"))													
+				p("This app can also be reached at ",a(href="http://bit.ly/jb66ct", "bit.ly/jb66ct")), 
+				hr(), 
+				h5("Version Release Notes"),
+				p("v1.0 :: Released 27 June 2020 :: More for my own fun/education than anything"), 
+				p("v2.0 :: Released 16 October 2020 :: New concept to show more information on COVID 
+				  and to help educate people on how to read data and charts."), 
+				p("v2.1 :: Released 20 October 2020 :: Added States menu, charts of all fifty states in a gird")
       ) # mainpanel
     ), # ABOUT TAB   
 	tabPanel(htmlOutput('current_data_date'))

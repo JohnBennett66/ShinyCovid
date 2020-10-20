@@ -992,6 +992,58 @@ output$world_trend_daily <- renderPlot( {
 
 
 
+################## ###
+###  STATES PAGE  ####
+################## ###
+
+###  STATES OVERVIEW  ####
+output$all_fifty <- renderPlot( { 
+ if(input$states_overview == 'cases')  { 
+   ggplot(us.data) + 
+     geom_line(aes(x = date, y = ccper100k), colour = cases.main) + 
+     facet_wrap(vars(state)) + 
+     theme(plot.background = element_rect(colour = plot.border, fill = plot.back), 
+           panel.background = element_rect(colour = plot.back, fill = plot.back), 
+           legend.background = element_rect(fill = plot.back),
+           panel.grid = element_line(color = lines), 
+           legend.position = "none") + 
+     labs(y = "Cases per 100,000 population", x = "")
+ } else if(input$states_overview == 'deaths')  { 
+   ggplot(us.data) + 
+     geom_line(aes(x = date, y = cdper100k), colour = death.main) + 
+     facet_wrap(vars(state)) + 
+     theme(plot.background = element_rect(colour = plot.border, fill = plot.back), 
+           panel.background = element_rect(colour = plot.back, fill = plot.back), 
+           legend.background = element_rect(fill = plot.back),
+           panel.grid = element_line(color = lines), 
+           legend.position = "none") + 
+     labs(y = "Deaths per 100,000 population", x = "")
+ } else if(input$states_overview == 'cc_pctchg')  { 
+   ggplot(us.data[date > "2020-05-20"]) + 
+     geom_line(aes(x = date, y = cc_pctchg), colour = cases.main) + 
+     facet_wrap(vars(state)) + 
+     scale_y_continuous(labels = percent) +
+     theme(plot.background = element_rect(colour = plot.border, fill = plot.back), 
+           panel.background = element_rect(colour = plot.back, fill = plot.back), 
+           legend.background = element_rect(fill = plot.back),
+           panel.grid = element_line(color = lines), 
+           legend.position = "none") + 
+     labs(y = "Weekly Change in Cases", x = "")
+ } else if(input$states_overview == 'cd_pctchg') { 
+   ggplot(us.data[date > "2020-06-05"]) + 
+     geom_line(aes(x = date, y = cd_pctchg), colour = death.main) + 
+     facet_wrap(vars(state)) + 
+     scale_y_continuous(labels = percent) +
+     theme(plot.background = element_rect(colour = plot.border, fill = plot.back), 
+           panel.background = element_rect(colour = plot.back, fill = plot.back), 
+           legend.background = element_rect(fill = plot.back),
+           panel.grid = element_line(color = lines), 
+           legend.position = "none") + 
+     labs(y = "Weekly Change in Deaths", x = "")
+  }
+}, width = 1200, height = 1200 #internal function
+) #renderPlot
+
 
 
 ################# ###
