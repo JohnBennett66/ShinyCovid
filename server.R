@@ -31,7 +31,7 @@ display.date <- paste(day(reporting.date),
                       year(reporting.date),
                       sep = " ")
 # color values for plots, charts, graphs, etc
-plot.back <- rgb(249, 249, 249, maxColorValue = 255)
+plot.back <- rgb(238, 238, 238, maxColorValue = 255)
 plot.border <- rgb(223, 215, 202, maxColorValue = 255)
 death.main <- rgb(242, 63, 33, maxColorValue = 255) 
 deaths.mid <- rgb(247, 131, 110, maxColorValue = 255)
@@ -517,6 +517,20 @@ output$plot_overview_us_100k <- renderPlot( {
   
 }, width = 500, height = 325 ) # output$plot_today_world
 
+###  TABLES  ####
+output$states_top_cases <- renderTable(
+  us.top.cases
+)
+output$states_top_deaths <- renderTable(
+  us.top.deaths
+)
+output$states_top_newcases <- renderTable(
+  us.top.newcases
+)
+output$states_top_newdeaths <- renderTable(
+  us.top.newdeaths
+)
+
 
 ###  THE TEXT  ####
 
@@ -749,6 +763,35 @@ output$us_daily_cases <- renderPlot( {
 })
 
 
+output$cases_percent_detail <- renderPlot( { 
+  if(input$us_trend == 'cc_pctchg') { 
+    ggplot(us.wkly[13:(nrow(us.wkly)-1)]) + 
+      geom_line(aes(x = floor_date, y = nc_pctchg), 
+                colour = cases.main) + 
+      scale_x_date(date_breaks = "1 months") + 
+      scale_y_continuous(labels = percent) + 
+      labs(y = "Weekly Percent Change in Cases", 
+           x = "") + 
+      theme(axis.text.x = element_text(angle = 90), 
+            panel.grid = element_line(color = lines),
+            plot.background = element_rect(colour = plot.back, fill = plot.back), 
+            panel.background = element_rect(colour = plot.back, fill = plot.back))
+  } else if(input$us_trend == 'cd_pctchg') {
+    ggplot(us.wkly[13:(nrow(us.wkly)-1)]) + 
+      geom_line(aes(x = floor_date, y = nd_pctchg), 
+                colour = death.main) + 
+      scale_x_date(date_breaks = "1 months") + 
+      scale_y_continuous(labels = percent) + 
+      labs(y = "Weekly Percent Change in Deaths", 
+           x = "") + 
+      theme(axis.text.x = element_text(angle = 90), 
+            panel.grid = element_line(color = lines),
+            plot.background = element_rect(colour = plot.back, fill = plot.back), 
+            panel.background = element_rect(colour = plot.back, fill = plot.back))
+  }
+}, width = 400, height = 200)
+
+
 ################## ###
 ##  TRENDS  TEXT  ####
 ################## ###
@@ -800,7 +843,7 @@ output$us_daily_cases_text <- renderUI( {
          after bouncing around a lot in the first couple months. However this is a <br> 
          bit misleading becasue it flattens the volitilty of the later months. <br> 
          Below is a chart showing this detail. As you can see there is still a week <br> 
-         with %50 change, and that is quite a bit.")
+         with over %40 change, and that is quite a bit.")
   } else if(input$us_trend == 'cd_pctchg') { 
     HTML("The percent change in new deaths each week has become fairly consistent <br> 
          after bouncing around some in the first couple months. However this is a <br> 
@@ -810,35 +853,6 @@ output$us_daily_cases_text <- renderUI( {
     }
   
 })
-
-
-output$cases_percent_detail <- renderPlot( { 
-  if(input$us_trend == 'cc_pctchg') { 
-    ggplot(us.wkly[10:(nrow(us.wkly)-1)]) + 
-      geom_line(aes(x = floor_date, y = nc_pctchg), 
-                colour = cases.main) + 
-      scale_x_date(date_breaks = "1 months") + 
-      scale_y_continuous(labels = percent) + 
-      labs(y = "Weekly Percent Change in Cases", 
-           x = "") + 
-      theme(axis.text.x = element_text(angle = 90), 
-            panel.grid = element_line(color = lines),
-            plot.background = element_rect(colour = plot.back, fill = plot.back), 
-            panel.background = element_rect(colour = plot.back, fill = plot.back))
-  } else if(input$us_trend == 'cd_pctchg') {
-    ggplot(us.wkly[13:(nrow(us.wkly)-1)]) + 
-      geom_line(aes(x = floor_date, y = nd_pctchg), 
-                colour = death.main) + 
-      scale_x_date(date_breaks = "1 months") + 
-      scale_y_continuous(labels = percent) + 
-      labs(y = "Weekly Percent Change in Deaths", 
-           x = "") + 
-      theme(axis.text.x = element_text(angle = 90), 
-            panel.grid = element_line(color = lines),
-            plot.background = element_rect(colour = plot.back, fill = plot.back), 
-            panel.background = element_rect(colour = plot.back, fill = plot.back))
-    }
-  }, width = 400, height = 200)
 
 
 

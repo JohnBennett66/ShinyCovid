@@ -199,7 +199,7 @@ fluidPage(title = "Worldwide COVID-19 Data Tracking App",
           sidebarPanel(
             # shinythemes::themeSelector(),
             selectInput('world_type', p("Which Data? Cases or Deaths", style="font-size:13px"),
-                        c("Daily Cases" = "cases", "Daily Deaths" = "deaths")
+                        c("Cases" = "cases", "Deaths" = "deaths")
             ),
             width = 2
           ), # sidebarpanel
@@ -349,7 +349,7 @@ fluidPage(title = "Worldwide COVID-19 Data Tracking App",
 					sidebarPanel(
 					# shinythemes::themeSelector(),
 						selectInput('us_type', p("Which Data? Cases or Deaths", style="font-size:13px"),
-												c("Daily Cases" = "cases", "Daily Deaths" = "deaths")
+												c("Cases" = "cases", "Deaths" = "deaths")
 						),
 						width = 2
 					), # sidebarpanel
@@ -363,14 +363,11 @@ fluidPage(title = "Worldwide COVID-19 Data Tracking App",
     						htmlOutput('text_overview_us_100k'),
     					) 
 						),
-						fluidRow(style="height:40px", 
-						         column(5, h4("Overview for the US Overall")),
-						         column(5, h4("Overview for State Rankings")),
-						), # row :: headlines
+						h4("Overview for the US"),
 						fluidRow(style="height:150px", 
-						  column(5, style="height:150px", 
+						  column(4, style="height:150px", 
 				         div(class = "row", style = "width: 500px", style = "height: 50px",
-				             HTML("<h5><strong>United States</strong></h5>"),
+				             HTML("<h5>United States</h5>"),
 				             HTML("Cumulative Cases ::  "), strong(HTML(comma(us.cases))), 
 				             HTML(" &nbsp;&nbsp;==>>&nbsp;&nbsp; Weekly Increase ::  "), 
 				             strong(HTML(percent(us.cases.increase, accuracy = 0.01))), br(), 
@@ -385,22 +382,39 @@ fluidPage(title = "Worldwide COVID-19 Data Tracking App",
 				             strong(HTML(comma(us.allup[date == reporting.date, cdper100k]))), 
 				             HTML(" &nbsp;&nbsp;==>>&nbsp;&nbsp; Weekly Increase ::  "), 
 				             strong(HTML(percent(us.allup[date == reporting.date, cd_pctchg])))
-				         ),br(), 
-						         
-						         
-						         ),
-						  column(5, style="height:150px", 
-						         HTML("Top States :: Coming Soon")
-						         )
-						),
-						hr(style="border-top-color:rgb(33,150,243)"),
-						HTML("<strong>NOTE: </strong>The percent change is week over week. <br>  
-									The formula :: ( (today&lsquo;s value - last week&lsquo;s value) &#247; 
-									last week&lsquo;s value). <br> 
-									Also, not all terms are used technically. This app is for a lay audience and <br> 
-									often uses terms colloquially to faciliate understanding for the target audience. 
-									<br> <br>"
-						)
+				          )
+				      ), 
+						  column(6, 
+				         HTML("<h5>&nbsp;</h5>
+				              <strong>NOTE: </strong>The percent change is week over week. <br>  
+    									The formula :: ( (today&lsquo;s value - last week&lsquo;s value) &#247; 
+    									last week&lsquo;s value). <br> 
+    									Also, not all terms are used technically. This app is for a lay audience <br> 
+    									and often uses terms colloquially to faciliate understanding for the <br> 
+    									target audience. 
+    									<br> <br>"
+				        ) 
+				      )
+					  ), br(), 
+					h4("Overview for State Rankings"),
+					fluidRow(style="height:350px", 
+						  column(2, 
+						         tableOutput('states_top_cases')
+						  ),
+						  column(2, 
+						         tableOutput('states_top_deaths')
+						  ), 
+						  column(2, 
+						         tableOutput('states_top_newcases')
+						  ), 
+						  column(2, 
+						         tableOutput('states_top_newdeaths')
+						  )
+					)
+						  
+						        
+						
+						
 					) # mainpanel
 				) # sidebarlayout
 			), #tabpanel where we are now
@@ -466,24 +480,27 @@ fluidPage(title = "Worldwide COVID-19 Data Tracking App",
 				             htmlOutput('us_daily_cases_text'),
 				             plotOutput('cases_percent_detail')
 				             )
-				   ),
-					 fluidRow(
-					   column(9, 
-					          ), #col1
-					   column(3, 
-					          selectInput('us_trend_table', p("Which Data? Cases or Deaths", style="font-size:13px"),
-					                      c("Cases/100k" = "cases", 
-					                        "Deaths/100k" = "deaths", 
-					                        "Cases Change" = "cc_pctchg", 
-					                        "Deaths Change" = "cd_pctchg"))
-					 ) #col2
-					 ) #row
+				   ) #,
+					 # fluidRow(
+					 #   column(9, 
+					 #          ), #col1
+					 #   column(3, 
+					 #          selectInput('us_trend_table', p("Which Data? Cases or Deaths", style="font-size:13px"),
+					 #                      c("Cases/100k" = "cases", 
+					 #                        "Deaths/100k" = "deaths", 
+					 #                        "Cases Change" = "cc_pctchg", 
+					 #                        "Deaths Change" = "cd_pctchg"))
+					 # ) #col2
+					 # ) #row
 
 						 
 			) #tabpanel us trends
 
 
 		),  # navbarmenu
+    navbarMenu(
+      
+    ),
              
     tabPanel("About", fluid = TRUE,
 			mainPanel(

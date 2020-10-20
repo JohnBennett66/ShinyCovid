@@ -320,7 +320,27 @@ us.cases.increase <- ((us.cases - us.cases.lastweek) /
 us.deaths.lastweek <- us.allup[date == reporting.date - 7, cum_deaths]
 us.deaths.increase <- ((us.deaths - us.deaths.lastweek) / 
                          us.deaths.lastweek)
-
+# top states
+# top cum cases per 100k
+setorder(us.today, -ccper100k)
+us.top.cases <- us.today[1:10,.(state,ccper100k)]
+us.top.cases[ , ccper100k := as.integer(ccper100k)]
+setorder(us.top.cases, -ccper100k)
+setnames(us.top.cases, c("State","Cases /100k"))
+# top cum deaths per 100k
+setorder(us.today, -cdper100k)
+us.top.deaths <- us.today[1:10,.(state,cdper100k)]
+us.top.deaths[ , cdper100k := as.integer(cdper100k)]
+setorder(us.top.deaths, -cdper100k)
+setnames(us.top.deaths, c("State","Deaths /100k"))
+# top new cases
+setorder(us.today, -new_cases)
+us.top.newcases <- us.today[1:10,.(state,new_cases)]
+setnames(us.top.newcases, c("State","New Cases"))
+# top new deaths
+setorder(us.today, -new_deaths)
+us.top.newdeaths <- us.today[1:10, .(state,new_deaths)]
+setnames(us.top.newdeaths, c("State","New Deaths"))
 
 
 
