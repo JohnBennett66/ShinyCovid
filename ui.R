@@ -195,6 +195,7 @@ fluidPage(title = "Worldwide COVID-19 Data Tracking App",
 ###  MULTIPLE MENU ITEMS      ###
 ############################# ###
 		navbarMenu(icon("globe", class = NULL, lib = "font-awesome"),
+## WORLD :: OVERVIEW MENU ITEM AND TAB PANEL  ####
      tabPanel("Overview", fluid = TRUE,
         h3("The Worldwide Overview"),
         sidebarLayout(
@@ -215,120 +216,63 @@ fluidPage(title = "Worldwide COVID-19 Data Tracking App",
                           htmlOutput('text_overview_world_100k'),
                    )
           ),
-          h4("Overview for the World Overall"),
-            fluidRow(style="height:200px",
-              column(5, style="height:200px",
+          h4("Overview for the World"),
+            fluidRow(style="height:150px",
+              column(4, style="height:150px",
                 div(class = "row", style = "width: 500px", style = "height: 50px",
-                  HTML("<h5><strong>The World</strong></h5>"),
-                  HTML("<h6>Cumulative Data</h6>"), 
-                  HTML("Cases ::  "), strong(HTML(comma(world.cases))), 
-                    HTML(" &nbsp;&nbsp;==>>&nbsp;&nbsp; Last Week"), strong(HTML(comma(world.cases.lastweek))), br(),
-                  HTML("Deaths ::  "), strong(HTML(comma(world.deaths))), 
-                    HTML(" &nbsp;&nbsp;==>>&nbsp;&nbsp; Last Week"), strong(HTML(comma(world.deaths.lastweek))), br(), 
-                  HTML("Cases/100k People :: "), strong(HTML(comma(world.cases/p2020[, sum(pop)*10]))), 
-                    HTML(" &nbsp;&nbsp;==>>&nbsp;&nbsp; Weekly Increase ::  "),
-                    strong(HTML(percent(world.cases.increase, accuracy = 0.01))), br(),
-                  HTML("Deaths/100k People :: "), strong(HTML(comma(world.deaths/p2020[, sum(pop)*10]))), 
-                    HTML(" &nbsp;&nbsp;==>>&nbsp;&nbsp; Weekly Increase ::  "), 
-                    strong(HTML(percent(world.cases.increase, accuracy = 0.01))), br(),
+                  HTML("<h5>The World</h5>"),
+                  HTML("Cumulative Cases ::  "), strong(HTML(comma(world.cases))), 
+				             HTML(" &nbsp;&nbsp;==>>&nbsp;&nbsp; Weekly Increase ::  "), 
+				             strong(HTML(percent(world.cases.increase, accuracy = 0.01))), br(), 
+				             HTML("Cumulative Deaths ::  "), strong(HTML(comma(world.deaths))), 
+				             HTML(" &nbsp;&nbsp;==>>&nbsp;&nbsp; Weekly Increase ::  "), 
+				             strong(HTML(percent(world.deaths.increase, accuracy = 0.01))), br(),
+				             HTML("Cases per 100,000 People ::  "), 
+				             strong(HTML(comma(world.allup[date == reporting.date, ccper100k]))), 
+				             HTML(" &nbsp;&nbsp;==>>&nbsp;&nbsp; Weekly Increase ::  "), 
+				             strong(HTML(percent(world.allup[date == reporting.date, cc_pctchg]))), br(),
+				             HTML("Deaths per 100,000 People ::  "), 
+				             strong(HTML(comma(world.allup[date == reporting.date, cdper100k]))), 
+				             HTML(" &nbsp;&nbsp;==>>&nbsp;&nbsp; Weekly Increase ::  "), 
+				             strong(HTML(percent(world.allup[date == reporting.date, cd_pctchg])))
                   
-                  ),br(),
-
-
-                           ),
-                           column(5, style="height:200px",
-                                  HTML("other stuff :: coming soon")
-                           )
-                  ),
-                  HTML("<strong>NOTE: </strong>The percent change is week over week. <br>
-  			The formula :: ( (today&lsquo;s value - last week&lsquo;s value) &#247;
-  			last week&lsquo;s value). <br>
-  			Also, not all terms are used technically. This is for a lay audience and <br>
-  			often uses terms colloquially to faciliate understanding for the target audience.
-  			<br> <br>"
-                  )
-                ) # mainpanel
+                  ) 
+							),
+              column(6, 
+                HTML("<h5>&nbsp;</h5>
+								<strong>NOTE: </strong>The percent change is week over week. <br>
+									The formula :: ( (today&lsquo;s value - last week&lsquo;s value) &#247;
+									last week&lsquo;s value). <br>
+									Also, not all terms are used technically. This is for a lay audience and <br>
+									often uses terms colloquially to faciliate understanding for the target audience.
+									<br> <br>"
+                )
+							)
+					), br(), 
+					h4("Overview for World Rankings"),
+					fluidRow(style="height:350px", 
+						  column(2, 
+						         tableOutput('world_top_cases')
+						  ),
+						  column(2, 
+						         tableOutput('world_top_deaths')
+						  ), 
+						  column(2, 
+						         tableOutput('world_top_newcases')
+						  ), 
+						  column(2, 
+						         tableOutput('world_top_newdeaths')
+						  )
+					)
+					
+					
+					
+					
+        ) # mainpanel
               ) # sidebarlayout
      )#, #tabpanel :: overview
 
-  #    ###  WORLD :: MENU DIVIDER  ####
-  #    '------',
-  #    
-  #    ###  WORLD :: RANKINGS MENU ITEM AND TAB PANEL  ####
-  #    tabPanel("World Rankings", fluid = TRUE, 
-  #             # shinythemes::themeSelector(),
-  #             sidebarLayout(
-  #               sidebarPanel(
-  #                 selectInput('world_rank', 
-  #                             p("Select Sort Order", style="font-size:13px"),
-  #                             c("Cases/100k" = "ccper100k", 
-  #                               "Deaths/100k" = "cdper100k", 
-  #                               "Cases Change" = "cc_pctchg", 
-  #                               "Deaths Change" = "cd_pctchg", 
-  #                               "Mortality Rate" = "mortality")
-  #                 ), width = 2
-  #               ), #sidebar
-  #               mainPanel(
-  #                 fluidRow(
-  #                   column(5, 
-  #                          HTML("<h4>Statistics Sorted by Selected Metric<sup>&dagger;</sup></h4>"), 
-  #                          tableOutput('world_ranking'), 
-  #                          HTML("<b><sup>&dagger;</sup> Selected Metric is in first column.<br>
-  #           Selected Metric is sorted in descending order (highest value at the top).<br>
-  #           The data is current as of </b>", strong(HTML(display.date)))
-  #                   ), #col1
-  #                   column(5, 
-  #                          h4("Chart for Selected Metric"), 
-  #                          plotOutput('plot_today_world_rank'), 
-  #                          htmlOutput('text_today_world_rank')
-  #                   ) #col2
-  #                 ) #row 
-  #               ), #main
-  #             ), #layout
-  #    ), # tab-"us rankings"
-  #    
-  #    ###  US :: TRENDS MENU ITEM AND TAB PANEL  ####
-  #    tabPanel("US Trends", fluid = TRUE,
-  #             h3("The World Trending:"),
-  #             
-  #             # shinythemes::themeSelector(),
-  #             selectInput('world_trend', p("Which Data? Cases or Deaths", style="font-size:13px"),
-  #                         c("Cases/100k" = "cases", 
-  #                           "Deaths/100k" = "deaths", 
-  #                           "Cases Change" = "cc_pctchg", 
-  #                           "Deaths Change" = "cd_pctchg")
-  #             ),
-  #             
-  #             
-  #             
-  #             h4("US Trends :: Since 21 January 2020"),
-  #             fluidRow(
-  #               h4("States Trending"),
-  #               column(6, 
-  #                      h5("Daily"), 
-  #                      plotOutput('world_daily_cases')
-  #               ), 
-  #               column(6, 
-  #                      h5("Discussion"),
-  #                      htmlOutput('world_daily_cases_text'),
-  #                      plotOutput('world_cases_percent_detail')
-  #               )
-  #             ),
-  #             fluidRow(
-  #               column(9, 
-  #               ), #col1
-  #               column(3, 
-  #                      selectInput('world_trend_table', p("Which Data? Cases or Deaths", style="font-size:13px"),
-  #                                  c("Cases/100k" = "cases", 
-  #                                    "Deaths/100k" = "deaths", 
-  #                                    "Cases Change" = "cc_pctchg", 
-  #                                    "Deaths Change" = "cd_pctchg"))
-  #               ) #col2
-  #             ) #row
-  #             
-  #             
-  #    ) #tabpanel us trends
-  #            
+              
 		), # navbarmenu :: the world
 
 
@@ -419,7 +363,7 @@ fluidPage(title = "Worldwide COVID-19 Data Tracking App",
 						
 					) # mainpanel
 				) # sidebarlayout
-			), #tabpanel where we are now
+			), #tabpanel overview
 
 ###  US :: MENU DIVIDER  ####
 			'------',
@@ -517,8 +461,33 @@ fluidPage(title = "Worldwide COVID-19 Data Tracking App",
             plotOutput('all_fifty')
           ), # main
         ), # sidebarlayout
-      ) # tab-"state comparison"
+      ), # tab-"state comparison"
+      ###  STATES :: MENU DIVIDER  ####
+      '------',
+      
+      ###  STATES :: COUNTIES MENU ITEM AND TAB PANEL  ####
+      tabPanel("State by County", fluid = TRUE, 
+        sidebarLayout(
+          sidebarPanel(
+            selectInput("state", 
+                        p("Pick a State", style="font-size:13px"), 
+                        c(select.state)
+            ), width = 2
+          ), #sidebarpanel
+          mainPanel(style="height:800px",
+            plotOutput('counties')
+          ), # main
+        ), # sidebarlay
+               
+      ) # tab = "state by county"
+               
     ), #navbarmenu states
+
+    
+
+
+
+
 
     tabPanel("About", fluid = TRUE,
 			mainPanel(

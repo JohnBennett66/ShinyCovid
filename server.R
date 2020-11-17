@@ -19,8 +19,6 @@ library(shinythemes)
 ###
 options(datatable.optimize=1)
 
-###  SETUP :: IMPORT :: TRANSFORM  ####
-source('setup_anlyss.R')
 
 ###  SET SOME VARIABLES  ####
 # various dates and date formatting
@@ -40,6 +38,12 @@ cases.main <- rgb(33, 150, 243, maxColorValue = 255)
 cases.mid <- rgb(110, 185, 247, maxColorValue = 255)
 cases.low <- rgb(207, 232, 252, maxColorValue = 255)
 lines <- rgb(204, 204, 204, maxColorValue = 255)
+
+
+###  SETUP :: IMPORT :: TRANSFORM  ####
+source('setup_anlyss.R')
+
+
 
 ###################### ###
 ###  MAIN FUNCTION    ####
@@ -377,6 +381,23 @@ output$plot_overview_world_100k <- renderPlot( {
   } 
   
 }, width = 500, height = 325 ) # output$plot_today_world
+
+
+
+###  TABLES  ####
+output$world_top_cases <- renderTable(
+  world.top.cases
+)
+output$world_top_deaths <- renderTable(
+  world.top.deaths
+)
+output$world_top_newcases <- renderTable(
+  world.top.newcases
+)
+output$world_top_newdeaths <- renderTable(
+  world.top.newdeaths
+)
+
 
 ###  THE TEXT  ####
 
@@ -1043,6 +1064,17 @@ output$all_fifty <- renderPlot( {
   }
 }, width = 1200, height = 1200 #internal function
 ) #renderPlot
+
+
+output$counties <- renderPlot({
+  
+  ggplot(us.data.all[state == input$state]) + 
+    geom_line(aes(date, new_cases)) + 
+    facet_wrap(vars(county), scales = "free") + 
+    labs(y = "Cumulative Cases")
+  
+}, width = 'auto', height = 800)
+
 
 
 

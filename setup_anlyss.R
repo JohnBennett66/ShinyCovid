@@ -174,6 +174,9 @@ setcolorder(us.data, c(4,10,11,9,3,2,8,5,6,12,7,1,13))
 
 # aggregate to the US level
 us.data <- us.data[country == "USA"]
+setorder(us.data, state)
+select.state <- us.data[,unique(state)]
+us.data.all <- us.data 
 us.data <- us.data[ , .(new_cases = sum(new_cases), new_deaths = sum(new_deaths), 
                               cum_cases = sum(cum_cases), cum_deaths = sum(cum_deaths))
                           , by = .(date, state)]
@@ -268,6 +271,17 @@ remove(us.weekly.cum)
 us.wkly[ , nc_pctchg := ((new_cases - shift(new_cases,1))/shift(new_cases,1))]
 us.wkly[ , nd_pctchg := ((new_deaths - shift(new_deaths,1))/shift(new_deaths,1))]
 
+## US DATA ALL :: INCLUDES COUNTIES #### 
+setcolorder(us.data.all, c(10,7,4,3,2,13,6,5))
+us.data.all[,source := NULL]
+us.data.all[,iso2 := NULL]
+us.data.all[,iso3 := NULL]
+us.data.all[,country := NULL]
+us.data.all[,continent := NULL]
+us.data.all[county.pop, on= .(state,county)]
+
+
+
 ##  WORLD ALL UP FOR TRENDS ####
 world.allup <- world.data[ , lapply(.SD, sum), by = .(date), 
                      .SDcols=c("new_cases", "new_deaths", 
@@ -345,6 +359,49 @@ setnames(us.top.newdeaths, c("State","New Deaths"))
 ##  WIDE TO LONG US.DATA TABLE  ##
 # wide to long melt
 us.data.long <- melt(us.data, id.vars = c("date", "state"), measure.vars = c("ccper100k","cdper100k","cc_pctchg","cd_pctchg"))
+
+
+# top WORLD
+# top cum cases per 100k
+setorder(world.today, -ccper100k)
+world.top.cases <- world.today[1:10,.(country,ccper100k)]
+world.top.cases[ , ccper100k := as.integer(ccper100k)]
+setorder(world.top.cases, -ccper100k)
+setnames(world.top.cases, c("Country","Cases /100k"))
+# top cum deaths per 100k
+setorder(world.today, -cdper100k)
+world.top.deaths <- world.today[1:10,.(country,cdper100k)]
+world.top.deaths[ , cdper100k := as.integer(cdper100k)]
+setorder(world.top.deaths, -cdper100k)
+setnames(world.top.deaths, c("Country","Deaths /100k"))
+# top new cases
+setorder(world.today, -new_cases)
+world.top.newcases <- world.today[1:10,.(country,new_cases)]
+setnames(world.top.newcases, c("Country","New Cases"))
+# top new deaths
+setorder(world.today, -new_deaths)
+world.top.newdeaths <- world.today[1:10, .(country,new_deaths)]
+setnames(world.top.newdeaths, c("Country","New Deaths"))
+
+# ranked WORLD
+# ranking table
+world.ranked <- world.today[ , .(country, ccper100k, cdper100k, cc_pctchg, cd_pctchg)]
+# ccper100k rank
+setorder(world.ranked, -ccper100k)
+world.ranked[ , ccper100k_rank := 1:.N]
+# cdper100k rank
+setorder(world.ranked, -cdper100k)
+world.ranked[ , cdper100k_rank := 1:.N]
+# ccpctchg rank
+setorder(world.ranked, -cc_pctchg)
+world.ranked[ , ccpctchg_rank := 1:.N]
+# cdpctchg rank
+setorder(world.ranked, -cd_pctchg)
+world.ranked[ , cdpctchg_rank := 1:.N]
+
+
+
+
 
 
 
